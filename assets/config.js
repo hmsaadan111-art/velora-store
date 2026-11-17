@@ -1,7 +1,7 @@
 window.VELORA_CONFIG={
  "preview":true,
  "themePicker":true,
- "name": "Velora Beauty",
+ "name": "Sefora Beauty",
  "whatsapp": "923000000000",
  "phone": "",
  "email": "",

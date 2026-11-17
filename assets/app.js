@@ -1,4 +1,4 @@
-/* Velora Beauty storefront
+/* Sefora Beauty storefront
    - Real URLs (/product/slug/, /shop/korean/ ...) so Google can index every page
    - Pages are pre-rendered at build time; this script hydrates them and handles navigation
    - Motion: scroll reveals, word-by-word headings, parallax hero, header hide/show, page transitions
@@ -10,7 +10,7 @@ const SSR = !!G.__PRERENDER;
 const PV = !!(G.VELORA_CONFIG&&G.VELORA_CONFIG.preview); // hash routing for sandboxed previews
 const curPath = () => PV ? (decodeURIComponent(location.hash.slice(1))||"/") : location.pathname;
 const STORE = {
-  name: CFG.name || "Velora Beauty",
+  name: CFG.name || "Sefora Beauty",
   wa: CFG.whatsapp || "923000000000",
   phone: CFG.phone || "",
   email: CFG.email || "",
@@ -166,7 +166,7 @@ function bannerHTML(b,first){
   return `<section class="pbanner pb-${b.lay}${b.dark?" pb-dark":""}" data-bn="${b.n}" style="--pb1:${c1};--pb2:${c2};--pbi:${b.ink};--pba:${b.ac}" aria-label="${esc(b.eb||STORE.name)}">
     <i class="pb-orb a" aria-hidden="true"></i><i class="pb-orb b" aria-hidden="true"></i>
     <div class="wrap pb-top">
-      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>VELORA</b><small>BEAUTY</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
+      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>SEFORA</b><small>BEAUTY</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
       <${H} class="pb-title">${b.t()}</${H}>
       <p class="pb-sub">${b.d}</p>
       <div class="pb-pills">${b.wa?`<a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>`:`<span class="pb-pill">${icon.cash}Cash on Delivery</span>`}<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span></div>
@@ -254,7 +254,7 @@ function vHome(){
   <div class="brands" aria-label="Brands"><div class="brands-track">${[...BRANDS.slice(0,26),...BRANDS.slice(0,26)].map((b,i)=>`<a href="${U.brand(b)}"${i>=26?' tabindex="-1" aria-hidden="true"':""}>${esc(b)}</a>`).join("")}</div></div>
 
 
-  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Velora<span>✦</span>Beauty<span>✦</span>Velora<span>✦</span>Beauty<span>✦</span>Velora<span>✦</span>Beauty<span>✦</span>Velora<span>✦</span>Beauty</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Signature scents<span>✦</span>Glass skin<span>✦</span>Signature scents<span>✦</span>Glass skin<span>✦</span>Cash on Delivery</div></div></div>
+  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Signature scents<span>✦</span>Glass skin<span>✦</span>Signature scents<span>✦</span>Glass skin<span>✦</span>Cash on Delivery</div></div></div>
   <section class="sec"><div class="wrap">
     <div class="sec-head"><h2 data-split>Signature <em>fragrances</em></h2><a class="more" href="${U.shop("perfume")}">All perfumes ${arrow}</a></div>
     <div class="grid">${P.filter(p=>p.cat==="perfume"&&p.stock).slice(0,8).map(p=>card(p)).join("")}</div>
@@ -460,7 +460,7 @@ function afterCheckout(){
     e.preventDefault(); let ok=true;
     $$("[data-f]").forEach(f=>{const i=$("input,select,textarea",f);const bad=!i.checkValidity()||!i.value.trim();f.classList.toggle("bad",bad);if(bad)ok=false});
     if(!ok){$(".fld.bad input,.fld.bad select,.fld.bad textarea").focus();return}
-    const t=totals(); const no="VB"+String(Date.now()).slice(-7);
+    const t=totals(); const no="SF"+String(Date.now()).slice(-7);
     const o={no,name:$("#cname").value.trim(),phone:$("#cphone").value.trim(),city:$("#ccity").value,address:$("#caddr").value.trim(),email:$("#cemail").value.trim(),note:$("#cnote").value.trim(),pay:$('input[name=pay]:checked').value,coupon,
       items:cart.map(i=>{const p=bySlug(i.s);return {slug:p.slug,name:p.name,price:p.price,q:i.q}}),...t,at:new Date().toISOString(),tracked:false};
     store.set("last",o);
@@ -524,7 +524,7 @@ const PAGES={
     <h3>Prices</h3><p>Prices are in Pakistani Rupees (PKR) and include applicable taxes. Delivery charges are shown at checkout. Where a previous price is shown, it is the price at which the product was sold on this site before the current offer.</p>
     <h3>Product information</h3><p>We try to show products as accurately as possible. Packaging may vary slightly from photos as brands update their designs.</p>
     <h3>Returns</h3><p>Please see our <a href="/returns-refunds/" style="text-decoration:underline">returns &amp; refunds policy</a>.</p>${contactBlock()}`},
-  "track-order":{t:"Track your order",d:`Track your ${STORE.name} order.`,b:()=>`<p>Enter your order number and we'll send you the latest status on WhatsApp.</p><form id="trk" style="display:grid;gap:10px;max-width:420px"><div class="fld"><label for="tno">Order number</label><input id="tno" placeholder="e.g. VB1234567" required></div><button class="btn primary">Get status on WhatsApp</button></form>`}
+  "track-order":{t:"Track your order",d:`Track your ${STORE.name} order.`,b:()=>`<p>Enter your order number and we'll send you the latest status on WhatsApp.</p><form id="trk" style="display:grid;gap:10px;max-width:420px"><div class="fld"><label for="tno">Order number</label><input id="tno" placeholder="e.g. SF1234567" required></div><button class="btn primary">Get status on WhatsApp</button></form>`}
 };
 function vInfo(k){const pg=PAGES[k];return `<div class="wrap info-page">${crumbs([[pg.t]])}<div class="shop-head"><h1 data-split>${pg.t}</h1></div><div class="prose ld" style="--d:200ms">${pg.b()}</div></div>`}
 function v404(){return `<div class="wrap done"><h1>Page not found</h1><p style="color:var(--muted)">The page you're looking for has moved or doesn't exist.</p><a class="btn primary" href="/">Back to home</a></div>`}

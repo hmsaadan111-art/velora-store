@@ -426,7 +426,7 @@ body{overflow-x:hidden}
 .logo{display:flex;align-items:center;gap:11px;color:var(--ink)}
 .logo .mk{width:40px;height:40px;flex:none;transition:transform .8s var(--ease-out)}
 .logo:hover .mk{transform:rotate(-8deg) scale(1.05)}
-.logo .mk .spk{transform-origin:32px 15px;transition:transform .8s var(--ease-out)}
+.logo .mk .spk{transform-origin:47px 16.5px;transition:transform .8s var(--ease-out)}
 .logo:hover .mk .spk{transform:rotate(90deg) scale(1.15)}
 .logo .wm{display:grid;line-height:1}
 .logo .wm b{font-family:var(--display);font-weight:500;font-size:23px;letter-spacing:.24em;margin-right:-.24em;font-variation-settings:"opsz" 72}
