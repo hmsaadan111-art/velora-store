@@ -223,12 +223,7 @@ function vHome(){
   return `
   ${vBanner()}
 
-  <section class="stats"><div class="wrap stats-in">
-    <div class="rv"><b class="num" data-count="${P.length}">${P.length}</b><span>products to choose from</span></div>
-    <div class="rv"><b class="num" data-count="${nBrands}" data-suffix="+">${nBrands}+</b><span>brands under one roof</span></div>
-    <div class="rv"><b class="num">3–5</b><span>working days to your door</span></div>
-    <div class="rv"><b class="num">COD</b><span>pay only when it arrives</span></div>
-  </div></section>
+
 
 
   <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Skincare<span>✦</span>K-Beauty<span>✦</span>Makeup<span>✦</span>Fragrance<span>✦</span>Skincare<span>✦</span>K-Beauty<span>✦</span>Makeup<span>✦</span>Fragrance</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Cash on Delivery<span>✦</span>All over Pakistan<span>✦</span>Cash on Delivery<span>✦</span>All over Pakistan<span>✦</span>Cash on Delivery</div></div></div>
@@ -270,6 +265,12 @@ function vHome(){
     <div class="grid">${P.filter(p=>p.cat==="perfume"&&p.stock).slice(0,8).map(p=>card(p)).join("")}</div>
   </div></section>
 
+  <section class="stats" style="padding:0 0 34px"><div class="wrap stats-in">
+    <div class="rv"><b class="num" data-count="${P.length}">${P.length}</b><span>products to choose from</span></div>
+    <div class="rv"><b class="num" data-count="${nBrands}" data-suffix="+">${nBrands}+</b><span>brands under one roof</span></div>
+    <div class="rv"><b class="num">3–5</b><span>working days to your door</span></div>
+    <div class="rv"><b class="num">COD</b><span>pay only when it arrives</span></div>
+  </div></section>
   <section class="sec" style="padding-top:0"><div class="wrap trust">
     <div class="rv">${icon.cash}<b>Cash on Delivery</b><span>Pay when your parcel arrives, anywhere in Pakistan.</span></div>
     <div class="rv" style="--d:80ms">${icon.truck}<b>Free delivery over ${rs(STORE.freeShip)}</b><span>Dispatched within 24 hours, delivered in 3–5 working days.</span></div>
