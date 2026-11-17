@@ -119,15 +119,15 @@ function card(p,eager){
   return `<article class="card rv">
     <div class="art">
       <a href="${U.p(p.slug)}" class="art-link" aria-label="${esc(p.name)}">${pic(p,eager)}</a>
-      ${!p.stock?`<span class="soldout">Sold out</span>`:o>=10?`<span class="off">−${o}%</span>`:""}
+      <span class="tags">${!p.stock?`<span class="soldout">Sold out</span>`:""}${BEST.includes(p.slug)?`<span class="tag">Top pick</span>`:""}${p.stock&&o>=10?`<span class="tag">Sale</span>`:""}${p.cat==="korean"?`<span class="tag lt">K-Beauty</span>`:""}</span>
       <button class="heart ${w?"on":""}" data-w="${p.slug}" aria-label="Save to wishlist">${heartSvg}</button>
-      <button class="eye" data-qv="${p.slug}" aria-label="Quick view">${eyeSvg}</button>
-      ${p.stock?`<button class="quick" data-add="${p.slug}">${plusSvg}Add to bag</button>`:`<button class="quick" data-notify="${p.slug}">Notify me</button>`}
     </div>
     <div class="info">
-      <a class="brand" href="${BRANDS.includes(p.brand)?U.brand(p.brand):U.shop(p.cat)}">${esc(p.brand)}${p.shades?` <em class="shd">· ${p.shades} shades</em>`:""}</a>
+      <a class="brand" href="${BRANDS.includes(p.brand)?U.brand(p.brand):U.shop(p.cat)}">${esc(p.brand)}</a>
       <a href="${U.p(p.slug)}" class="name">${esc(p.name)}</a>
-      <div class="price num"><span class="now">${rs(p.price)}</span>${o>=10?`<span class="was">${rs(p.compare)}</span>`:""}</div>
+      ${p.shades?`<span class="shd">${p.shades} shades</span>`:""}
+      <div class="price num"><span class="now${o>=10?" sale":""}">${rs(p.price)}</span>${o>=10?`<span class="was">${rs(p.compare)}</span>`:""}</div>
+      ${p.stock?`<button class="add-btn" data-add="${p.slug}">Add to bag</button>`:`<button class="add-btn ghosted" data-notify="${p.slug}">Notify me</button>`}
     </div>
   </article>`;
 }
@@ -207,104 +207,124 @@ function vBannerGallery(){
   ${BANNER_SET.map(b=>`<div class="bg-item"><div class="wrap bg-lab"><b>Banner ${b.n}</b><span>${b.eb||"Big sale"}</span></div>${bannerHTML(b,false)}</div>`).join("")}`;
 }
 
+/* ---------- story-card carousels + offers ---------- */
+const STORY_BG={3:"#7A5A2E",10:"#8C6A2F"};
+const plain=h=>String(h).replace(/<[^>]+>/g,"");
+function storyCard(b){
+  const [c1,c2]=b.bg.split(",");
+  return `<a class="story rv" href="${b.cta[1]}">
+    <span class="st-img" style="background:linear-gradient(180deg,${c1},${c2})"><img src="assets/banner/b${b.n}-m.webp" alt="${esc(b.eb||"Featured")} products" loading="lazy" width="1200" height="520"></span>
+    <span class="st-body" style="background:${STORY_BG[b.n]||b.ac}">
+      <b>${plain(b.t())}</b><span>${b.d}</span><em>Shop now ▸</em>
+    </span></a>`;
+}
+function stories(ids,label){
+  const list=ids.map(n=>BANNER_SET.find(b=>b.n===n)).filter(Boolean);
+  return `<section class="stories-sec" aria-label="${label}"><div class="wrap"><div class="stories">${list.map(storyCard).join("")}</div><div class="st-dots">${list.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div></div></section>`;
+}
+function storyMotion(){
+  $$(".stories").forEach(s=>{
+    const dots=$$(".st-dots i",s.parentNode); const cards=$$(".story",s);
+    const idx=()=>{const w=cards[0]?cards[0].offsetWidth+12:1;return Math.round(s.scrollLeft/w)};
+    s.addEventListener("scroll",()=>{const i=idx();dots.forEach((d,k)=>d.classList.toggle("on",k===i))},{passive:true});
+    let t=setInterval(()=>{if(!s.isConnected){clearInterval(t);return}if(document.hidden||s.matches(":hover"))return;const i=idx();const n=(i+1)>=cards.length-(innerWidth>=900?2:0)?0:i+1;s.scrollTo({left:n*(cards[0].offsetWidth+12),behavior:"smooth"})},5000);
+    s.addEventListener("touchstart",()=>{clearInterval(t)},{passive:true,once:true});
+  });
+}
+const OFFERS=()=>[
+  {bg:"#1F5C45",t:"10% off your first order",d:"Use code WELCOME10 at checkout.",img:2,href:U.shop(),copy:"WELCOME10"},
+  {bg:"#111111",t:`Up to ${Math.max(...P.filter(p=>p.stock).map(off))}% off selected products`,d:"Genuine price drops, no inflated prices.",img:9,href:U.sale},
+  {bg:"#8C6A2F",t:`Free delivery over ${rs(STORE.freeShip)}`,d:"Delivered in 3–5 working days, all over Pakistan.",img:5,href:U.shop()},
+  {bg:"#7A2E52",t:"Gift sets for Eid and weddings",d:"Makeup kits, minis and brush sets.",img:10,href:U.shop()}
+];
+function offersRail(){
+  const o=OFFERS();
+  return `<section class="sec offers-sec"><div class="wrap"><div class="sec-head"><h2>Beauty offers (${o.length})</h2><a class="more" href="${U.sale}">View all</a></div>
+  <div class="offers">${o.map(x=>`<a class="offer rv" href="${x.href}"><span class="of-img"><img src="assets/banner/b${x.img}-m.webp" alt="" loading="lazy" width="1200" height="520"></span><span class="of-body"><b>${x.t}</b><span>${x.d}</span>${x.copy?`<button class="codebox sm" type="button" data-copy="${x.copy}"><span>${x.copy}</span><small>Copy</small></button>`:`<em>Shop now ▸</em>`}</span></a>`).join("")}</div></div></section>`;
+}
+const CHIP_LINKS=()=>[["Offers",U.sale,1],["Korean",U.shop("korean")],["Skin Care",U.shop("skincare")],["Makeup",U.shop("makeup")],["Perfumes",U.shop("perfume")],["Body Care",U.shop("body")],["Hair Care",U.shop("hair")],["Tools",U.shop("tools")],["All brands",U.shop()]];
+
 /* ---------- views ---------- */
 const HOME_HERO=["his-confession-lattafa-100ml", "lattafa-khamrah-eau-de-parfum-100ml", "afnan-9pm-perfume-for-men-100ml"];
 const ROUTINE=[["Cleanse","anua-heartleaf-quercetinol-pore-deep-cleansing-foam-korea150ml-1"],["Tone","anua-heartleaf-77-soothing-toner-korea-1"],["Treat","anua-niacinamide-10-txa-4-dark-spot-correcting-serum-korea"],["Protect","beauty-of-joseon-relief-sun-rice-probiotics-spf50-50ml-korea"]];
+const BEST=["anua-heartleaf-77-soothing-toner-korea-1", "beauty-of-joseon-relief-sun-rice-probiotics-spf50-50ml-korea", "cerave-foaming-facial-cleanser-355ml", "fenty-beauty-gloss-bomb-universal-lip-luminizer-08-riri", "lattafa-khamrah-eau-de-parfum-100ml", "mielle-rosemary-mint-strengthening-shampoo", "sol-de-janeiro-bom-dia-bright-cream-240gm", "medicube-pdrn-collagen-gua-sha-neck-wrinkle-cream-90g", "mac-matchmaster-spf15-foundation-35ml-1", "anua-niacinamide-new-10-txa-4-dark-spot-correcting-serum-korea", "la-roche-posay-pure-vitamin-c10-serum-30ml-1", "la-roche-posay-anthelios-uvmune-400-moisturizing-sunscreen-spf50-50ml"];
+const CAT_REP={"skincare": "cerave-foaming-facial-cleanser-355ml", "korean": "anua-heartleaf-77-soothing-toner-korea-1", "makeup": "fenty-beauty-gloss-bomb-universal-lip-luminizer-08-riri", "perfume": "lattafa-khamrah-eau-de-parfum-100ml", "body": "sol-de-janeiro-bom-dia-bright-cream-240gm", "hair": "mielle-rosemary-mint-strengthening-shampoo"};
+function rail(title,href,items,sub){
+  return `<section class="sec rail-sec"><div class="wrap">
+    <div class="sec-head"><div><h2>${title}</h2>${sub?`<p class="sec-sub">${sub}</p>`:""}</div>${href?`<a class="more" href="${href}">View all ${arrow}</a>`:""}</div>
+    <div class="rail-wrap"><button class="rail-btn prev" aria-label="Scroll left">‹</button><div class="rail">${items.map(p=>card(p)).join("")}</div><button class="rail-btn next" aria-label="Scroll right">›</button></div>
+  </div></section>`;
+}
 function vHome(){
-  const picks=[...P].filter(p=>p.stock&&off(p)>=10).sort((a,b)=>off(b)-off(a)||b.price-a.price).slice(0,10);
-  const hero=HOME_HERO.map(bySlug);
-  const rTotal=ROUTINE.reduce((a,[,s])=>a+bySlug(s).price,0);
-  const nBrands=Object.keys(BRAND_COUNT).length-1;
+  const best=BEST.map(bySlug).filter(Boolean);
+  const pick=(f,n=12)=>{const seen={};return P.filter(p=>p.stock&&!p.raw&&f(p)&&!seen[p.brand]&&(seen[p.brand]=1)).slice(0,n)};
+  const kor=pick(p=>p.cat==="korean"), under=pick(p=>p.price<2000), frag=pick(p=>p.cat==="perfume"), mk=pick(p=>p.cat==="makeup");
+  const topB=BRANDS.filter(b=>b!=="Essentials").slice(0,12);
   return `
-  ${vBanner()}
+  <nav class="hchips" aria-label="Quick links"><div class="wrap">${CHIP_LINKS().map(([n,h,hot])=>`<a class="hchip${hot?" hot":""}" href="${h}">${n}</a>`).join("")}</div></nav>
+  ${stories((CFG.banners&&CFG.banners.length?CFG.banners:[2,4,5,6,8,9,10]),"Featured collections")}
 
-
-
-
-  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Skincare<span>✦</span>K-Beauty<span>✦</span>Makeup<span>✦</span>Fragrance<span>✦</span>Skincare<span>✦</span>K-Beauty<span>✦</span>Makeup<span>✦</span>Fragrance</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Cash on Delivery<span>✦</span>All over Pakistan<span>✦</span>Cash on Delivery<span>✦</span>All over Pakistan<span>✦</span>Cash on Delivery</div></div></div>
-  <section class="sec"><div class="wrap">
-    <div class="sec-head"><h2 data-split>Shop by <em>category</em></h2><a class="more" href="${U.shop()}">View all ${arrow}</a></div>
-    <div class="cats">${CATS.map((c,i)=>{const n=P.filter(p=>p.cat===c.k).length;const rep=P.find(p=>p.cat===c.k&&p.stock);return `<a class="cat rv" style="--d:${i*70}ms" href="${U.shop(c.k)}"><span class="disc">${pic({...rep,name:c.n,brand:c.n})}</span><span>${c.n}<small>${n} products</small></span></a>`}).join("")}</div>
+  <section class="sec cat-sec"><div class="wrap">
+    <div class="sec-head"><h2>Shop by category</h2></div>
+    <div class="cats">${CATS.map(c=>{const rep=bySlug(CAT_REP[c.k])||P.find(p=>p.cat===c.k&&p.stock);const n=P.filter(p=>p.cat===c.k).length;return `<a class="cat rv" href="${U.shop(c.k)}"><span class="disc">${pic({...rep,name:c.n,brand:c.n})}</span><span>${c.n}<small>${n} products</small></span></a>`}).join("")}</div>
   </div></section>
 
-  <section class="wrap"><div class="flash rv">
-    <div class="sec-head"><div><span class="eyebrow" style="color:var(--gold)">This week</span><h2 style="margin-top:8px" data-split>Best <em style="color:var(--gold)">value</em> picks</h2></div>
-      <a class="more" href="${U.sale}">See all offers ${arrow}</a></div>
-    <div class="rail">${picks.map(p=>card(p)).join("")}</div>
-  </div></section>
+  ${rail("Bestsellers",U.shop(),best,"What Pakistan is loving right now")}
+
+
+
+  ${offersRail()}
+  ${rail("Korean favourites",U.shop("korean"),kor,"Anua, COSRX, Medicube, Beauty of Joseon and more")}
 
   <section class="sec"><div class="wrap">
-    <div class="sec-head"><h2 data-split>Trending <em>now</em></h2>
-      <div class="tabs" role="tablist">${[["all","All"],["korean","Korean"],["makeup","Makeup"],["perfume","Perfumes"],["hair","Hair"]].map(([k,n],i)=>`<button class="tab ${i?"":"on"}" data-tab="${k}" role="tab">${n}</button>`).join("")}</div></div>
-    <div class="grid" id="trend">${trendList("all").map(p=>card(p)).join("")}</div>
-    <div style="text-align:center;margin-top:28px"><a class="btn ghost" href="${U.shop()}">Browse all products ${arrow}</a></div>
+    <div class="sec-head"><h2>Top brands</h2><a class="more" href="${U.shop()}">All brands ${arrow}</a></div>
+    <div class="brand-grid">${topB.map(b=>`<a class="bcell rv" href="${U.brand(b)}"><b>${esc(b)}</b><small>${BRAND_COUNT[b]} products</small></a>`).join("")}</div>
   </div></section>
 
-  <section class="sec" style="padding-top:0"><div class="wrap promos">
-    <div class="promo k rv clip"><div class="deco" data-sp="y" data-amt="-30">${pic(bySlug("anua-heartleaf-77-soothing-toner-korea-1"))}</div><span class="eyebrow" style="color:var(--sage)">K-Beauty edit</span><h3>Your <em>glass-skin</em> routine starts here</h3><p>Anua, Axis-Y, Beauty of Joseon and Medicube, picked for Pakistani weather.</p><a class="btn primary" href="${U.shop("korean")}">Shop Korean skincare ${arrow}</a></div>
-    <div class="promo f rv clip" style="--d:120ms"><div class="deco" data-sp="y" data-amt="-30">${pic(bySlug("lattafa-khamrah-eau-de-parfum-100ml") || bySlug("tom-ford-black-orchid-perfume"))}</div><span class="eyebrow" style="color:var(--gold)">Fragrance house</span><h3>Scents that <em>linger</em> from ${rs(Math.min(...P.filter(p=>p.cat==="perfume").map(p=>p.price)))}</h3><p>Fresh daytime scents to rich evening perfumes for weddings and Eid.</p><a class="btn ghost" href="${U.shop("perfume")}">Explore perfumes ${arrow}</a></div>
-  </div></section>
+  ${stories([1,3,7],"More to explore")}
+  ${rail("Under Rs 2,000",U.shop(),under,"Great finds that don't break the bank")}
+  ${rail("Makeup must-haves",U.shop("makeup"),mk)}
+  ${rail("Fragrance picks",U.shop("perfume"),frag)}
 
-  <section class="sec" style="padding-top:0"><div class="wrap">
-    <div class="sec-head"><div><span class="eyebrow">4 steps · AM routine</span><h2 style="margin-top:8px" data-split>Build your <em>routine</em></h2></div></div>
-    <div class="routine">${ROUTINE.map(([st,s],i)=>{const p=bySlug(s);return `<div class="step rv" style="--d:${i*90}ms"><span class="n">0${i+1}</span><h4>${st}</h4><a class="art" href="${U.p(s)}">${pic(p)}</a><a class="pname" href="${U.p(s)}">${esc(p.name)}</a><div class="price num"><span class="now">${rs(p.price)}</span></div></div>`}).join("")}</div>
-    <div class="routine-total rv"><span>Complete routine · <b class="num">${rs(rTotal)}</b>${rTotal>=STORE.freeShip?` &nbsp;<span style="color:var(--ok);font-weight:700">Free delivery included</span>`:""}</span><button class="btn rose" data-routine="${ROUTINE.map(r=>r[1]).join(",")}">Add all 4 to bag</button></div>
-  </div></section>
-
-  <div class="brands" aria-label="Brands"><div class="brands-track">${[...BRANDS.slice(0,26),...BRANDS.slice(0,26)].map((b,i)=>`<a href="${U.brand(b)}"${i>=26?' tabindex="-1" aria-hidden="true"':""}>${esc(b)}</a>`).join("")}</div></div>
-
-
-  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Signature scents<span>✦</span>Glass skin<span>✦</span>Signature scents<span>✦</span>Glass skin<span>✦</span>Cash on Delivery</div></div></div>
-  <section class="sec"><div class="wrap">
-    <div class="sec-head"><h2 data-split>Signature <em>fragrances</em></h2><a class="more" href="${U.shop("perfume")}">All perfumes ${arrow}</a></div>
-    <div class="grid">${P.filter(p=>p.cat==="perfume"&&p.stock).slice(0,8).map(p=>card(p)).join("")}</div>
-  </div></section>
-
-  <section class="stats" style="padding:0 0 34px"><div class="wrap stats-in">
-    <div class="rv"><b class="num" data-count="${P.length}">${P.length}</b><span>products to choose from</span></div>
-    <div class="rv"><b class="num" data-count="${nBrands}" data-suffix="+">${nBrands}+</b><span>brands under one roof</span></div>
-    <div class="rv"><b class="num">3–5</b><span>working days to your door</span></div>
-    <div class="rv"><b class="num">COD</b><span>pay only when it arrives</span></div>
-  </div></section>
-  <section class="sec" style="padding-top:0"><div class="wrap trust">
+  <section class="sec"><div class="wrap trust">
     <div class="rv">${icon.cash}<b>Cash on Delivery</b><span>Pay when your parcel arrives, anywhere in Pakistan.</span></div>
-    <div class="rv" style="--d:80ms">${icon.truck}<b>Free delivery over ${rs(STORE.freeShip)}</b><span>Dispatched within 24 hours, delivered in 3–5 working days.</span></div>
-    <div class="rv" style="--d:160ms">${icon.ret}<b>Easy 5-day returns</b><span>Damaged or wrong item? We'll replace it or refund you.</span></div>
-    <div class="rv" style="--d:240ms">${icon.chat}<b>WhatsApp support</b><span>Real people to help you pick the right product.</span></div>
+    <div class="rv">${icon.truck}<b>Free delivery over ${rs(STORE.freeShip)}</b><span>Dispatched within 24 hours, delivered in 3–5 working days.</span></div>
+    <div class="rv">${icon.ret}<b>Easy 5-day returns</b><span>Damaged or wrong item? We'll replace it or refund you.</span></div>
+    <div class="rv">${icon.chat}<b>WhatsApp support</b><span>Real people to help you pick the right product.</span></div>
   </div></section>
 
-  <section class="sec seo-copy" style="padding-top:0"><div class="wrap">
-    <div class="sec-head"><h2 data-split>Online beauty store <em>in Pakistan</em></h2></div>
-    <div class="seo-cols rv">
+  <section class="sec"><div class="wrap"><div class="news rv">
+    <div><h2>10% off your first order</h2><p>Use the code at checkout. Join our WhatsApp list for restocks and new launches.</p></div>
+    <div class="news-act"><button class="codebox" data-copy="WELCOME10" type="button"><span>WELCOME10</span><small>Copy code</small></button><a class="btn wa" href="#" data-wa-join>Join on WhatsApp</a></div>
+  </div></div></section>
+
+  <section class="sec seo-copy"><div class="wrap">
+    <h2>Online beauty store in Pakistan</h2>
+    <div class="seo-cols">
       <p>${esc(STORE.name)} brings skincare, Korean beauty, makeup, perfumes, body care and hair care together in one place, with Cash on Delivery to every major city including Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan and Peshawar.</p>
       <p>Shop by concern with serums for dark spots and acne marks, gentle cleansers, barrier-repair moisturisers and daily SPF, or build a complete Korean routine. Every order is checked before dispatch and delivered in 3–5 working days.</p>
       <p>Not sure what suits your skin? Message us on WhatsApp and a real person will help you choose. Delivery is ${rs(STORE.shipFee)}, and free on orders over ${rs(STORE.freeShip)}.</p>
     </div>
-  </div></section>
-
-  <section class="wrap"><div class="news rv">
-    <div><span class="eyebrow">New here?</span><h2 style="margin-top:8px">10% off your first order</h2><p style="color:var(--muted);margin-top:6px">Use the code at checkout. Join our WhatsApp list for restock and new-launch alerts.</p></div>
-    <div class="news-act"><button class="codebox" data-copy="WELCOME10" type="button"><span>WELCOME10</span><small>Copy code</small></button><a class="btn wa" href="#" data-wa-join>Join on WhatsApp</a></div>
   </div></section>`;
 }
-function trendList(k){return P.filter(p=>(k==="all"||p.cat===k)&&p.stock).slice(k==="all"?20:0).slice(0,8)}
-function afterHome(){
-  const tr=$("#trend");
-  const fill=k=>{tr.classList.add("swap");setTimeout(()=>{tr.innerHTML=trendList(k).map(p=>card(p)).join("");decorateCards(tr);tr.classList.remove("swap");reveal(tr,true);scrollMotion()},220)};
-  $$("[data-tab]").forEach(b=>b.onclick=()=>{$$("[data-tab]").forEach(x=>x.classList.toggle("on",x===b));fill(b.dataset.tab)});
-  heroMotion(); counters(); bannerSlider();
+function rails(root){
+  $$(".rail-wrap",root).forEach(w=>{const r=$(".rail",w);const upd=()=>{w.classList.toggle("at-start",r.scrollLeft<8);w.classList.toggle("at-end",r.scrollLeft+r.clientWidth>=r.scrollWidth-8)};
+    $(".prev",w).onclick=()=>r.scrollBy({left:-r.clientWidth*.9,behavior:"smooth"});$(".next",w).onclick=()=>r.scrollBy({left:r.clientWidth*.9,behavior:"smooth"});r.addEventListener("scroll",upd,{passive:true});upd()});
 }
+function trendList(k){return P.filter(p=>(k==="all"||p.cat===k)&&p.stock).slice(k==="all"?20:0).slice(0,8)}
+function afterHome(){ counters(); bannerSlider(); rails(); storyMotion(); }
 
 let shopState={};
 function shopFilter(st){
-  let r=P.filter(p=>(!st.cats.length||st.cats.includes(p.cat))&&(!st.brands.length||st.brands.includes(p.brand))&&(!st.max||p.price<st.max)&&(!st.stock||p.stock)&&(!st.sale||off(p)>=10));
+  const qq=(st.q||"").toLowerCase().trim();
+  let r=P.filter(p=>(!qq||(p.name+" "+p.brand+" "+((catOf(p.cat)||{}).n||"")).toLowerCase().includes(qq))&&(!st.cats.length||st.cats.includes(p.cat))&&(!st.brands.length||st.brands.includes(p.brand))&&(!st.max||p.price<st.max)&&(!st.stock||p.stock)&&(!st.sale||off(p)>=10));
   const s=st.sort;
-  return [...r].sort((a,b)=>s==="low"?a.price-b.price:s==="high"?b.price-a.price:s==="off"?off(b)-off(a):s==="az"?a.name.localeCompare(b.name):(b.stock-a.stock));
+  return [...r].sort((a,b)=>s==="low"?a.price-b.price:s==="high"?b.price-a.price:s==="off"?off(b)-off(a):s==="az"?a.name.localeCompare(b.name):(b.stock-a.stock)||((a.raw?1:0)-(b.raw?1:0)));
 }
 function vShop(o={}){
-  shopState={cats:o.cat?[o.cat]:[],brands:o.brand?[o.brand]:[],max:0,sort:o.sale?"off":"featured",stock:!!o.sale,sale:!!o.sale};
+  shopState={q:o.q||"",cats:o.cat?[o.cat]:[],brands:o.brand?[o.brand]:[],max:0,sort:o.sale?"off":"featured",stock:!!o.sale,sale:!!o.sale};
   const c=catOf(o.cat);
-  const title=o.sale?"Offers":o.brand?o.brand:c?c.n:"Shop all";
+  const title=o.q?`Results for “${esc(o.q)}”`:o.sale?"Offers":o.brand?o.brand:c?c.n:"Shop all";
   const sub=o.sale?"Genuine price drops on selected products. No inflated “was” prices.":o.brand?`${BRAND_COUNT[o.brand]} ${esc(o.brand)} products with Cash on Delivery across Pakistan.`:c?CAT_INTRO[c.k]:"Every product, every brand, in one place.";
   const bl=Object.keys(BRAND_COUNT).filter(b=>b!=="Essentials").sort((a,b)=>BRAND_COUNT[b]-BRAND_COUNT[a]).slice(0,40).sort();
   if(o.brand&&!bl.includes(o.brand)) bl.unshift(o.brand);
@@ -312,8 +332,15 @@ function vShop(o={}){
   return `<div class="wrap">
     ${crumbs(o.brand?[["Brands",U.shop()],[esc(o.brand)]]:[[title]])}
     <div class="shop-head"><h1 data-split>${esc(title)}${o.brand?` <em>in Pakistan</em>`:""}</h1><p class="ld" style="--d:300ms">${sub}</p></div>
-    <div class="shop-bar"><button class="btn ghost fbtn" style="height:40px;padding:0 16px" id="openF">Filters</button><span class="count" id="count"></span>
-      <label for="sort" class="sr">Sort</label><select class="sel" id="sort">${[["featured","Featured"],["off","Best offers"],["low","Price: low to high"],["high","Price: high to low"],["az","Name: A–Z"]].map(([v,n])=>`<option value="${v}" ${shopState.sort===v?"selected":""}>${n}</option>`).join("")}</select></div>
+    <div class="chips" id="chips">
+      <button class="chip fbtn-chip" id="openF" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filters</button>
+      <label class="chip">Sort: <select id="sort" aria-label="Sort products">${[["featured","Featured"],["off","Best offers"],["low","Price: low to high"],["high","Price: high to low"],["az","Name: A–Z"]].map(([v,n])=>`<option value="${v}" ${shopState.sort===v?"selected":""}>${n}</option>`).join("")}</select></label>
+      <button class="chip" type="button" data-chip="instock">In stock</button>
+      <button class="chip" type="button" data-chip="onsale">On offer</button>
+      <button class="chip" type="button" data-chip="max:3000">Under Rs 3,000</button>
+      <button class="chip" type="button" data-chip="max:5000">Under Rs 5,000</button>
+    </div>
+    <p class="count" id="count" style="font-size:13px;color:var(--muted);margin:-4px 0 14px"></p>
     <div class="shop-layout">
       <aside class="filters" id="filters">
         <div class="fbtn fhead"><h3 style="font-size:26px">Filters</h3><button class="ib" id="closeF" aria-label="Close filters">✕</button></div>
@@ -323,14 +350,17 @@ function vShop(o={}){
         <div class="fgroup"><h6>Brand</h6><div style="max-height:260px;overflow:auto">${bl.map(b=>`<label><input type="checkbox" name="brand" value="${esc(b)}" ${shopState.brands.includes(b)?"checked":""}>${esc(b)}</label>`).join("")}</div></div>
         <button class="btn primary fbtn" id="applyF">Show results</button>
       </aside>
-      <div><div class="grid" id="sgrid">${first.map(p=>card(p)).join("")}</div><div class="morewrap"><p class="m" id="moreTxt"></p><button class="btn ghost" id="more" hidden>Load more products</button></div></div>
+      <div><div class="grid" id="sgrid">${withPromo(first.map(p=>card(p))).join("")}</div><div class="morewrap"><p class="m" id="moreTxt"></p><button class="btn ghost" id="more" hidden>Load more products</button></div></div>
     </div>
     ${c?`<div class="cat-brands"><h2>Popular ${esc(c.n.toLowerCase())} brands</h2><div>${topBrands(c.k,10).filter(b=>BRANDS.includes(b)).map(b=>`<a class="tab" href="${U.brand(b)}">${esc(b)}</a>`).join("")}</div></div>`:""}
     </div>`;
 }
+const promoCard=()=>`<div class="promo-card rv"><div><span class="t-eb" style="color:var(--gold-2)">Welcome offer</span><b>10% off your first order</b><p>Cash on Delivery all over Pakistan. Free delivery over ${rs(STORE.freeShip)}.</p></div><button class="codebox" data-copy="WELCOME10" type="button"><span>WELCOME10</span><small>Copy</small></button></div>`;
+const withPromo=(cards)=>{if(cards.length>6)cards.splice(5,0,promoCard());return cards};
 function afterShop(){
   const f=$("#filters");
   const apply=(initial)=>{
+    shopState.q=shopState.q||"";
     shopState.cats=$$('input[name=cat]:checked',f).map(i=>i.value);
     shopState.brands=$$('input[name=brand]:checked',f).map(i=>i.value);
     shopState.max=+($('input[name=max]:checked',f)||{}).value||0;
@@ -338,12 +368,18 @@ function afterShop(){
     const r=shopFilter(shopState);
     const g=$("#sgrid"); $("#count").textContent=`${r.length} product${r.length===1?"":"s"}`;
     let shown=0; const PAGE=24, more=$("#more");
-    const page=()=>{const chunk=r.slice(shown,shown+PAGE);shown+=chunk.length;const tmp=document.createElement("div");tmp.innerHTML=chunk.map(p=>card(p)).join("");decorateCards(tmp);[...tmp.children].forEach((c,i)=>{c.style.setProperty("--d",(i%12)*45+"ms");g.appendChild(c)});reveal(g);scrollMotion();more.hidden=shown>=r.length;$("#moreTxt").textContent=`Showing ${shown} of ${r.length}`};
+    const page=()=>{const first=shown===0;const chunk=r.slice(shown,shown+PAGE);shown+=chunk.length;const tmp=document.createElement("div");const cs=chunk.map(p=>card(p));tmp.innerHTML=(first?withPromo(cs):cs).join("");decorateCards(tmp);[...tmp.children].forEach((c,i)=>{c.style.setProperty("--d",(i%12)*45+"ms");g.appendChild(c)});reveal(g);scrollMotion();more.hidden=shown>=r.length;$("#moreTxt").textContent=`Showing ${shown} of ${r.length}`};
     if(initial===true){shown=Math.min(PAGE,r.length);more.hidden=shown>=r.length;$("#moreTxt").textContent=r.length?`Showing ${shown} of ${r.length}`:"";more.onclick=page;return}
     g.innerHTML=r.length?"":`<div class="empty" style="grid-column:1/-1"><h3>No products match</h3><p>Try removing a filter.</p></div>`;
     more.hidden=true; if(r.length)page(); more.onclick=page;
   };
-  f.addEventListener("change",()=>apply()); $("#sort").onchange=()=>apply();
+  const syncChips=()=>{$$("[data-chip]").forEach(c=>{const k=c.dataset.chip;c.classList.toggle("on",k==="instock"?$("#instock").checked:k==="onsale"?$("#onsale").checked:(+($('input[name=max]:checked',f)||{}).value||0)===+k.split(":")[1])})};
+  $$("[data-chip]").forEach(c=>c.onclick=()=>{const k=c.dataset.chip;
+    if(k==="instock")$("#instock").checked=!$("#instock").checked;
+    else if(k==="onsale")$("#onsale").checked=!$("#onsale").checked;
+    else{const v=k.split(":")[1];const cur=$('input[name=max]:checked',f);const tgt=(cur&&cur.value===v)?$('input[name=max][value="0"]',f):$(`input[name=max][value="${v}"]`,f);if(tgt)tgt.checked=true}
+    apply();syncChips()});
+  f.addEventListener("change",()=>{apply();syncChips()}); $("#sort").onchange=()=>apply(); syncChips();
   $("#openF").onclick=()=>f.classList.add("open"); $("#closeF").onclick=$("#applyF").onclick=()=>f.classList.remove("open");
   apply(true);
   track("view_item_list",{item_list_name:document.title,items:shopFilter(shopState).slice(0,12).map(p=>gItem(p))});
@@ -361,7 +397,7 @@ function deliveryText(){
 function vProduct(p){
   pdQty=1;
   const o=off(p), c=catOf(p.cat);
-  const rel=P.filter(x=>x.cat===p.cat&&x.slug!==p.slug&&x.stock).sort((a,b)=>(b.brand===p.brand)-(a.brand===p.brand)).slice(0,4);
+  const rel=P.filter(x=>x.cat===p.cat&&x.slug!==p.slug&&x.stock).sort((a,b)=>(b.brand===p.brand)-(a.brand===p.brand)).slice(0,12);
   const t=totals();
   return `<div class="wrap">
     ${crumbs([[c.n,U.shop(p.cat)],...(BRANDS.includes(p.brand)?[[esc(p.brand),U.brand(p.brand)]]:[]),[esc(p.name)]])}
@@ -392,7 +428,7 @@ function vProduct(p){
         <button class="btn ghost" style="margin-top:18px;height:42px" data-wbig="${p.slug}">${wish.includes(p.slug)?"♥ Saved":"♡ Save to wishlist"}</button>
       </div>
     </div>
-    ${rel.length?`<section class="sec"><div class="sec-head"><h2 data-split>You may <em>also love</em></h2></div><div class="grid">${rel.map(x=>card(x)).join("")}</div></section>`:""}
+    ${rel.length?`</div>${rail("You may also like",U.shop(p.cat),rel)}<div class="wrap">`:""}
   </div>
   ${p.stock?`<div class="sticky-buy" id="stickyBuy"><div class="wrap"><span class="sb-n">${esc(p.name)}</span><b class="num">${rs(p.price)}</b><button class="btn rose" data-buynow="${p.slug}">Buy now</button></div></div>`:""}`;
 }
@@ -401,6 +437,7 @@ function afterProduct(p){
   const d=$("#dlv"); if(d) d.innerHTML=deliveryText();
   const sb=$("#stickyBuy"), buy=$(".buy");
   if(sb&&buy&&"IntersectionObserver" in G){new IntersectionObserver(([e])=>sb.classList.toggle("on",!e.isIntersecting&&e.boundingClientRect.top<0)).observe(buy)}
+  rails();
   track("view_item",{value:p.price,items:[gItem(p)]});
 }
 
@@ -547,7 +584,7 @@ function meta(r){
   const n=STORE.name;
   switch(r.name){
     case "home": return {title:`${n} | Skincare, Korean Beauty, Makeup & Perfumes in Pakistan`,desc:`Shop ${P.length}+ skincare, Korean beauty, makeup, perfume and hair care products online in Pakistan. Cash on Delivery nationwide, delivery in 3–5 days.`};
-    case "shop": return {title:`Shop All Beauty Products in Pakistan | ${n}`,desc:`Browse ${P.length}+ beauty products: skincare, Korean skincare, makeup, perfumes, body and hair care. Cash on Delivery across Pakistan.`};
+    case "shop": if(r.q) return {title:`Search results for “${r.q}” | ${n}`,desc:"",noindex:true}; return {title:`Shop All Beauty Products in Pakistan | ${n}`,desc:`Browse ${P.length}+ beauty products: skincare, Korean skincare, makeup, perfumes, body and hair care. Cash on Delivery across Pakistan.`};
     case "sale": return {title:`Beauty Offers & Price Drops in Pakistan | ${n}`,desc:`Current offers on skincare, makeup and fragrance. Genuine price drops with Cash on Delivery across Pakistan.`};
     case "cat": {const c=catOf(r.cat);return {title:`${c.n} in Pakistan – ${topBrands(r.cat,3).join(", ")} | ${n}`,desc:`${CAT_INTRO[r.cat]} Cash on Delivery nationwide.`.slice(0,300)}}
     case "brand": return {title:`${r.brand} Price in Pakistan – ${BRAND_COUNT[r.brand]} Products | ${n}`,desc:`Buy ${r.brand} products online in Pakistan at ${n}. ${BRAND_COUNT[r.brand]} products with Cash on Delivery and 3–5 day delivery.`};
@@ -563,7 +600,7 @@ function meta(r){
 function view(r){
   switch(r.name){
     case "home": return [vHome(),afterHome];
-    case "shop": return [vShop(),afterShop];
+    case "shop": return [vShop({q:r.q}),afterShop];
     case "sale": return [vShop({sale:true}),afterShop];
     case "cat": return [vShop({cat:r.cat}),afterShop];
     case "brand": return [vShop({brand:r.brand}),afterShop];
@@ -581,11 +618,11 @@ function navActive(path){
   $$(".bnav [data-bn]").forEach(a=>{const k=a.dataset.bn;a.classList.toggle("on",(k==="home"&&path==="/")||(k==="shop"&&/^\/(shop|sale|brand)/.test(path))||(k==="wishlist"&&path==="/wishlist/"))});
 }
 function route(first){
-  const path=curPath().replace(/index\.html$/,""); const r=parse(path); const v=$("#view");
+  const full=curPath(); const path=full.split("?")[0].replace(/index\.html$/,""); const qs=new URLSearchParams(PV?(full.split("?")[1]||""):location.search); const r=parse(path); if(r.name==="shop"&&qs.get("q")) r.q=qs.get("q"); const v=$("#view");
   const [html,after]=view(r);
   const m=meta(r); document.title=m.title;
   const md=$('meta[name="description"]'); if(md&&m.desc) md.setAttribute("content",m.desc);
-  const reuse=!PV&&first&&v.dataset.pre===path&&!["wishlist","checkout","order-placed"].includes(r.name);
+  const reuse=!PV&&!r.q&&first&&v.dataset.pre===path&&!["wishlist","checkout","order-placed"].includes(r.name);
   if(!reuse){ v.innerHTML=html; v.dataset.pre=path; }
   decorateCards(v); splitAll(v); reveal(v);
   if(!first){ v.classList.remove("enter");void v.offsetWidth;v.classList.add("enter"); }
@@ -594,6 +631,7 @@ function route(first){
   scrollMotion(v);
 }
 function go(href,replace){
+  const tp=$("#top"); if(tp){tp.classList.add("nomega"); const off=()=>{tp.classList.remove("nomega");tp.removeEventListener("mouseleave",off)}; tp.addEventListener("mouseleave",off); setTimeout(()=>{if(!tp.matches(":hover"))off()},400)}
   if(PV){closePanels();closeModal();if(location.hash.slice(1)===href)route();else location.hash=href;return}
   if(replace) history.replaceState({},"",href); else history.pushState({},"",href);
   closePanels(); closeModal();
@@ -646,6 +684,7 @@ function scrollFx(){
     const y=scrollY, max=document.documentElement.scrollHeight-innerHeight;
     hd.classList.toggle("scrolled",y>10);
     hd.classList.toggle("hide",y>last&&y>420&&!document.body.style.overflow);
+    document.documentElement.style.setProperty("--hh",(hd.classList.contains("hide")?0:hd.offsetHeight)+"px");
     last=y; if(bar) bar.style.transform=`scaleX(${max>0?y/max:0})`;
     ticking=false;
   };
@@ -656,7 +695,7 @@ function scrollFx(){
 /* scroll-linked motion: elements keep moving while the page scrolls */
 let spItems=[], spTick=false;
 function scrollMotion(root){
-  if(matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  if(CFG.motion!=="rich"||matchMedia("(prefers-reduced-motion:reduce)").matches) return;
   spItems=[];
   $$("[data-sp]").forEach(el=>spItems.push({el,k:el.dataset.sp,amt:+el.dataset.amt||0,dir:+el.dataset.dir||1}));
   $$(".sec-head h2").forEach((el,i)=>spItems.push({el,k:"x",amt:i%2?40:-40}));
@@ -682,6 +721,7 @@ function spRun(){
   }
   spTick=false;
 }
+function backToTop(){const b=document.createElement("button");b.className="totop";b.type="button";b.textContent="Back to top";b.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});document.body.appendChild(b);let t=false;addEventListener("scroll",()=>{if(t)return;t=true;requestAnimationFrame(()=>{b.classList.toggle("on",scrollY>1400);t=false})},{passive:true})}
 function spInit(){ addEventListener("scroll",()=>{if(!spTick){spTick=true;requestAnimationFrame(spRun)}},{passive:true}); addEventListener("resize",()=>scrollMotion()) }
 
 /* ---------- cart drawer ---------- */
@@ -698,7 +738,7 @@ function renderCart(){
 }
 
 /* ---------- overlays ---------- */
-function openPanel(id){closePanels(); if(id==="search"){$("#search").classList.add("on");setTimeout(()=>$("#q").focus(),50);runSearch();return} if(id==="cart")renderCart(); $("#"+id).classList.add("on");$("#scrim").classList.add("on"); document.body.style.overflow="hidden"}
+function openPanel(id){closePanels(); if(id==="search"){const h=$("#hq");if(h){window.scrollTo({top:0,behavior:"smooth"});setTimeout(()=>h.focus(),250);return}$("#search").classList.add("on");setTimeout(()=>$("#q").focus(),50);runSearch();return} if(id==="cart")renderCart(); $("#"+id).classList.add("on");$("#scrim").classList.add("on"); document.body.style.overflow="hidden"}
 function closePanels(){$$(".drawer.on,.search.on,.scrim.on").forEach(e=>e.classList.remove("on"));document.body.style.overflow=""}
 let sT;
 function runSearch(){
@@ -755,13 +795,31 @@ const THEMES=[["","Nude Luxe","Ivory, espresso, rose gold",["#FBF7F2","#2B201C",
 ["mocha","Mocha Mousse","Warm mocha, Pantone colour of the year",["#F7F1EB","#3B2C25","#8F6552","#D6B7A6"]],
 ["sage","Sage Apothecary","Clean white and sage, Aesop style",["#F5F4EE","#263028","#4F6E57","#BFD0C0"]]];
 function themePicker(){
-  if(!CFG.themePicker) return;
+  if(!CFG.themePicker){ delete document.documentElement.dataset.theme; return; }
   const cur=store.get("theme","");
   const w=document.createElement("div"); w.className="tpick";
   w.innerHTML=`<button type="button" aria-expanded="false"><i></i>Theme</button><div class="tpanel"><b>Choose a colour theme</b>${THEMES.map(([k,n,d,c],i)=>`<button type="button" class="topt${k===cur?" on":""}" data-th="${k}"><span class="sw">${c.map(x=>`<span style="background:${x}"></span>`).join("")}</span><span><strong>${i+1}. ${n}</strong><small>${d}</small></span></button>`).join("")}</div>`;
   document.body.appendChild(w);
   const btn=w.firstElementChild; btn.onclick=()=>{w.classList.toggle("open");btn.setAttribute("aria-expanded",w.classList.contains("open"))};
   $$(".topt",w).forEach(o=>o.onclick=()=>{const k=o.dataset.th; if(k)document.documentElement.dataset.theme=k; else delete document.documentElement.dataset.theme; store.set("theme",k); $$(".topt",w).forEach(x=>x.classList.toggle("on",x===o)); toast(`Theme: <b>${o.querySelector("strong").textContent}</b>`)});
+}
+
+
+/* header search with instant results */
+function headerSearch(){
+  const f=$("#hsearch"), q=$("#hq"), d=$("#hdrop"); if(!f) return;
+  let t;
+  const render=()=>{const v=q.value.trim().toLowerCase(); if(!v){d.classList.remove("on");d.innerHTML="";return}
+    const pr=P.filter(p=>(p.name+" "+p.brand+" "+((catOf(p.cat)||{}).n||"")).toLowerCase().includes(v)).sort((a,b)=>b.stock-a.stock).slice(0,6);
+    const br=BRANDS.filter(b=>b.toLowerCase().includes(v)).slice(0,4);
+    d.innerHTML=(br.length?`<div class="hd-brands">${br.map(b=>`<a href="${U.brand(b)}">${esc(b)}</a>`).join("")}</div>`:"")+
+      (pr.length?pr.map(p=>`<a class="hd-p" href="${U.p(p.slug)}"><span class="hd-img">${pic(p)}</span><span><b>${esc(p.brand)}</b><br>${esc(p.name)}</span><span class="num">${rs(p.price)}</span></a>`).join(""):`<p class="hd-none">No products found for “${esc(q.value.trim())}”</p>`)+
+      `<a class="hd-all" href="/shop/?q=${encodeURIComponent(q.value.trim())}">See all results ${arrow}</a>`;
+    d.classList.add("on"); clearTimeout(t); if(v.length>2) t=setTimeout(()=>track("search",{search_term:v}),900)};
+  q.addEventListener("input",render); q.addEventListener("focus",render);
+  f.addEventListener("submit",e=>{e.preventDefault();const v=q.value.trim();if(v){d.classList.remove("on");q.blur();go("/shop/?q="+encodeURIComponent(v))}});
+  document.addEventListener("click",e=>{if(!f.contains(e.target))d.classList.remove("on")});
+  d.addEventListener("click",e=>{if(e.target.closest("a")){d.classList.remove("on");q.value=""}});
 }
 
 /* ---------- boot ---------- */
@@ -813,7 +871,7 @@ function boot(){
   if(PV) addEventListener("hashchange",()=>{const v=$("#view");v.classList.add("leave");setTimeout(()=>{window.scrollTo({top:0,behavior:"instant"});v.classList.remove("leave");route()},180)});
   $("#menuBtn").onclick=()=>openPanel("menu");
   $("#yr").textContent=new Date().getFullYear();
-  syncBadges(); renderCart(); scrollFx(); spInit(); route(true); welcomeNudge(); loadTags(); themePicker();
+  syncBadges(); renderCart(); scrollFx(); spInit(); headerSearch(); backToTop(); route(true); welcomeNudge(); loadTags(); themePicker();
   document.body.classList.add("ready");
 }
 if(typeof document!=="undefined"&&!SSR){ document.readyState==="loading"?document.addEventListener("DOMContentLoaded",boot):boot() }

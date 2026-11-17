@@ -1,6 +1,6 @@
 window.VELORA_CONFIG={
  "preview":true,
- "themePicker":true,
+
  "name": "Sefora.pk",
  "whatsapp": "923000000000",
  "phone": "",
