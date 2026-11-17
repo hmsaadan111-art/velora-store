@@ -109,7 +109,7 @@ let tt; function toast(h){const t=$("#toast");t.innerHTML=h;t.classList.add("on"
 
 /* ---------- components ---------- */
 function pic(p,eager){
-  return `<span class="ph" data-i="${esc(initials(p.brand||p.n||"V"))}">${p.img?`<img src="${p.img}" alt="${esc(p.name||p.n)}" width="600" height="600" loading="${eager?"eager":"lazy"}" decoding="async" onload="this.parentNode.classList.add('ok')" onerror="this.parentNode.classList.add('err');this.remove()">`:""}</span>`;
+  return `<span class="ph${eager?" ok":""}" data-i="${esc(initials(p.brand||p.n||"V"))}">${p.img?`<img src="${p.img}" alt="${esc(p.name||p.n)}" width="600" height="600" loading="${eager?"eager":"lazy"}"${eager?' fetchpriority="high"':""} decoding="async" onload="this.parentNode.classList.add('ok')" onerror="this.parentNode.classList.add('err');this.remove()">`:""}</span>`;
 }
 const heartSvg=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>`;
 const eyeSvg=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -242,6 +242,11 @@ function offersRail(){
   return `<section class="sec offers-sec"><div class="wrap"><div class="sec-head"><h2>Beauty offers (${o.length})</h2><a class="more" href="${U.sale}">View all</a></div>
   <div class="offers">${o.map(x=>`<a class="offer rv" href="${x.href}"><span class="of-img"><img src="assets/banner/b${x.img}-m.webp" alt="" loading="lazy" width="1200" height="520"></span><span class="of-body"><b>${x.t}</b><span>${x.d}</span>${x.copy?`<button class="codebox sm" type="button" data-copy="${x.copy}"><span>${x.copy}</span><small>Copy</small></button>`:`<em>Shop now ▸</em>`}</span></a>`).join("")}</div></div></section>`;
 }
+const CONCERNS=[["acne","Acne & breakouts"],["pigment","Dark spots & dullness"],["dry","Dry skin"],["oily","Oily skin & pores"],["sun","Sun protection"],["aging","Fine lines"],["sensitive","Sensitive skin"],["hairfall","Hair fall"]];
+const CON_ICON={acne:"◎",pigment:"✦",dry:"◍",oily:"◐",sun:"☀",aging:"〰",sensitive:"❀",hairfall:"≋"};
+const conName=k=>(CONCERNS.find(c=>c[0]===k)||[])[1];
+const conCount=k=>P.filter(p=>(p.con||[]).includes(k)).length;
+function concernSec(){return `<section class="sec con-sec"><div class="wrap"><div class="sec-head"><h2>Shop by skin concern</h2></div><div class="con-grid">${CONCERNS.map(([k,n])=>`<a class="con-tile" href="${U.shop()}?concern=${k}"><span class="ci">${CON_ICON[k]}</span><b>${n}</b><small>${conCount(k)} products</small></a>`).join("")}</div></div></section>`}
 const CHIP_LINKS=()=>[["Offers",U.sale,1],["Korean",U.shop("korean")],["Skin Care",U.shop("skincare")],["Makeup",U.shop("makeup")],["Perfumes",U.shop("perfume")],["Body Care",U.shop("body")],["Hair Care",U.shop("hair")],["Tools",U.shop("tools")],["All brands",U.shop()]];
 
 /* ---------- views ---------- */
@@ -273,6 +278,7 @@ function vHome(){
 
 
 
+  ${concernSec()}
   ${offersRail()}
   ${rail("Korean favourites",U.shop("korean"),kor,"Anua, COSRX, Medicube, Beauty of Joseon and more")}
 
@@ -317,15 +323,15 @@ function afterHome(){ counters(); bannerSlider(); rails(); storyMotion(); }
 let shopState={};
 function shopFilter(st){
   const qq=(st.q||"").toLowerCase().trim();
-  let r=P.filter(p=>(!qq||(p.name+" "+p.brand+" "+((catOf(p.cat)||{}).n||"")).toLowerCase().includes(qq))&&(!st.cats.length||st.cats.includes(p.cat))&&(!st.brands.length||st.brands.includes(p.brand))&&(!st.max||p.price<st.max)&&(!st.stock||p.stock)&&(!st.sale||off(p)>=10));
+  let r=P.filter(p=>(!qq||(p.name+" "+p.brand+" "+((catOf(p.cat)||{}).n||"")).toLowerCase().includes(qq))&&(!st.cats.length||st.cats.includes(p.cat))&&(!st.brands.length||st.brands.includes(p.brand))&&(!st.max||p.price<st.max)&&(!(st.cons||[]).length||st.cons.some(c=>(p.con||[]).includes(c)))&&(!st.stock||p.stock)&&(!st.sale||off(p)>=10));
   const s=st.sort;
   return [...r].sort((a,b)=>s==="low"?a.price-b.price:s==="high"?b.price-a.price:s==="off"?off(b)-off(a):s==="az"?a.name.localeCompare(b.name):(b.stock-a.stock)||((a.raw?1:0)-(b.raw?1:0)));
 }
 function vShop(o={}){
-  shopState={q:o.q||"",cats:o.cat?[o.cat]:[],brands:o.brand?[o.brand]:[],max:0,sort:o.sale?"off":"featured",stock:!!o.sale,sale:!!o.sale};
+  shopState={cons:o.con?[o.con]:[],q:o.q||"",cats:o.cat?[o.cat]:[],brands:o.brand?[o.brand]:[],max:0,sort:o.sale?"off":"featured",stock:!!o.sale,sale:!!o.sale};
   const c=catOf(o.cat);
-  const title=o.q?`Results for “${esc(o.q)}”`:o.sale?"Offers":o.brand?o.brand:c?c.n:"Shop all";
-  const sub=o.sale?"Genuine price drops on selected products. No inflated “was” prices.":o.brand?`${BRAND_COUNT[o.brand]} ${esc(o.brand)} products with Cash on Delivery across Pakistan.`:c?CAT_INTRO[c.k]:"Every product, every brand, in one place.";
+  const title=o.q?`Results for “${esc(o.q)}”`:o.sale?"Offers":o.brand?o.brand:c?c.n:o.con?`For ${conName(o.con).toLowerCase()}`:"Shop all";
+  const sub=o.sale?"Genuine price drops on selected products. No inflated “was” prices.":o.brand?`${BRAND_COUNT[o.brand]} ${esc(o.brand)} products with Cash on Delivery across Pakistan.`:c?CAT_INTRO[c.k]:o.con?`Products picked by their key ingredients for ${conName(o.con).toLowerCase()}. Not sure what to choose? Ask us on WhatsApp.`:"Every product, every brand, in one place.";
   const bl=Object.keys(BRAND_COUNT).filter(b=>b!=="Essentials").sort((a,b)=>BRAND_COUNT[b]-BRAND_COUNT[a]).slice(0,40).sort();
   if(o.brand&&!bl.includes(o.brand)) bl.unshift(o.brand);
   const first=shopFilter(shopState).slice(0,24);
@@ -340,11 +346,13 @@ function vShop(o={}){
       <button class="chip" type="button" data-chip="max:3000">Under Rs 3,000</button>
       <button class="chip" type="button" data-chip="max:5000">Under Rs 5,000</button>
     </div>
+    ${(!o.cat||["skincare","korean","body","hair"].includes(o.cat))&&!o.brand?`<div class="chips con-chips" aria-label="Shop by concern"><span class="cc-l">Concern:</span>${CONCERNS.filter(([k])=>o.cat==="hair"?k==="hairfall":k!=="hairfall"||!o.cat).map(([k,n])=>`<button class="chip" type="button" data-conchip="${k}">${n}</button>`).join("")}</div>`:""}
     <p class="count" id="count" style="font-size:13px;color:var(--muted);margin:-4px 0 14px"></p>
     <div class="shop-layout">
       <aside class="filters" id="filters">
         <div class="fbtn fhead"><h3 style="font-size:26px">Filters</h3><button class="ib" id="closeF" aria-label="Close filters">✕</button></div>
         <div class="fgroup"><h6>Category</h6>${CATS.map(x=>`<label><input type="checkbox" name="cat" value="${x.k}" ${x.k===o.cat?"checked":""}>${x.n}</label>`).join("")}</div>
+        <div class="fgroup"><h6>Skin concern</h6>${CONCERNS.map(([k,n])=>`<label><input type="checkbox" name="con" value="${k}" ${shopState.cons.includes(k)?"checked":""}>${n}</label>`).join("")}</div>
         <div class="fgroup"><h6>Price</h6>${[[0,"Any price"],[3000,"Under Rs 3,000"],[5000,"Under Rs 5,000"],[10000,"Under Rs 10,000"]].map(([v,n])=>`<label><input type="radio" name="max" value="${v}" ${v===0?"checked":""}>${n}</label>`).join("")}</div>
         <div class="fgroup"><h6>Availability</h6><label><input type="checkbox" id="instock" ${shopState.stock?"checked":""}>In stock only</label><label><input type="checkbox" id="onsale" ${shopState.sale?"checked":""}>On offer</label></div>
         <div class="fgroup"><h6>Brand</h6><div style="max-height:260px;overflow:auto">${bl.map(b=>`<label><input type="checkbox" name="brand" value="${esc(b)}" ${shopState.brands.includes(b)?"checked":""}>${esc(b)}</label>`).join("")}</div></div>
@@ -363,6 +371,7 @@ function afterShop(){
     shopState.q=shopState.q||"";
     shopState.cats=$$('input[name=cat]:checked',f).map(i=>i.value);
     shopState.brands=$$('input[name=brand]:checked',f).map(i=>i.value);
+    shopState.cons=$$('input[name=con]:checked',f).map(i=>i.value);
     shopState.max=+($('input[name=max]:checked',f)||{}).value||0;
     shopState.stock=$("#instock").checked; shopState.sale=$("#onsale").checked; shopState.sort=$("#sort").value;
     const r=shopFilter(shopState);
@@ -373,6 +382,9 @@ function afterShop(){
     g.innerHTML=r.length?"":`<div class="empty" style="grid-column:1/-1"><h3>No products match</h3><p>Try removing a filter.</p></div>`;
     more.hidden=true; if(r.length)page(); more.onclick=page;
   };
+  const syncCon=()=>$$("[data-conchip]").forEach(c=>c.classList.toggle("on",!!$(`input[name=con][value="${c.dataset.conchip}"]`,f).checked));
+  $$("[data-conchip]").forEach(c=>c.onclick=()=>{const i=$(`input[name=con][value="${c.dataset.conchip}"]`,f);i.checked=!i.checked;apply();syncCon()});
+  f.addEventListener("change",syncCon); syncCon();
   const syncChips=()=>{$$("[data-chip]").forEach(c=>{const k=c.dataset.chip;c.classList.toggle("on",k==="instock"?$("#instock").checked:k==="onsale"?$("#onsale").checked:(+($('input[name=max]:checked',f)||{}).value||0)===+k.split(":")[1])})};
   $$("[data-chip]").forEach(c=>c.onclick=()=>{const k=c.dataset.chip;
     if(k==="instock")$("#instock").checked=!$("#instock").checked;
@@ -424,8 +436,9 @@ function vProduct(p){
           <div class="prog"><span>${t.left?`Add <b class="num">${rs(t.left)}</b> more to your bag for free delivery`:`<b style="color:var(--ok)">Your bag qualifies for free delivery</b>`}</span><div class="bar"><i style="width:${t.pct}%"></i></div></div>
         </div>
         <div class="acc">
-          <details open><summary>Description</summary><p>${esc(p.desc)}</p></details>
-          <details><summary>How to use</summary><p>${USE[p.cat]}</p></details>
+          ${p.ing?`<details open><summary>Key ingredients</summary><ul class="ing">${p.ing.map(([n,b])=>`<li><b>${esc(n)}</b><span>${esc(b)}</span></li>`).join("")}</ul></details>`:""}
+          ${p.fit&&p.fit.length?`<details${p.ing?"":" open"}><summary>Best for</summary><div class="fit">${p.fit.map(x=>`<span>${esc(x)}</span>`).join("")}</div>${(p.con||[]).length?`<p class="fit-l">${p.con.map(k=>`<a href="${U.shop()}?concern=${k}">More for ${esc(conName(k).toLowerCase())} →</a>`).join("")}</p>`:""}</details>`:""}
+          <details><summary>How to use</summary><p>${esc((typeof p.how==="number"?(G.HOW||[])[p.how]:p.how)||USE[p.cat])}</p></details>
           <details><summary>Delivery &amp; returns</summary><ul><li>Dispatched within 24 hours</li><li>Delivered in 3–5 working days</li><li>Delivery ${rs(STORE.shipFee)}, free over ${rs(STORE.freeShip)}</li><li>Report damaged or wrong items within 5 days</li></ul></details>
         </div>
         <button class="btn ghost" style="margin-top:18px;height:42px" data-wbig="${p.slug}">${wish.includes(p.slug)?"♥ Saved":"♡ Save to wishlist"}</button>
@@ -595,7 +608,7 @@ function meta(r){
   const n=STORE.name;
   switch(r.name){
     case "home": return {title:`${n} | Skincare, Korean Beauty, Makeup & Perfumes in Pakistan`,desc:`Shop ${P.length}+ skincare, Korean beauty, makeup, perfume and hair care products online in Pakistan. Cash on Delivery nationwide, delivery in 3–5 days.`};
-    case "shop": if(r.q) return {title:`Search results for “${r.q}” | ${n}`,desc:"",noindex:true}; return {title:`Shop All Beauty Products in Pakistan | ${n}`,desc:`Browse ${P.length}+ beauty products: skincare, Korean skincare, makeup, perfumes, body and hair care. Cash on Delivery across Pakistan.`};
+    case "shop": if(r.con&&!r.q) return {title:`Products for ${conName(r.con)} in Pakistan | ${n}`,desc:`Skincare and body care picks for ${conName(r.con).toLowerCase()}, chosen by ingredient. Cash on Delivery across Pakistan.`,noindex:true}; if(r.q) return {title:`Search results for “${r.q}” | ${n}`,desc:"",noindex:true}; return {title:`Shop All Beauty Products in Pakistan | ${n}`,desc:`Browse ${P.length}+ beauty products: skincare, Korean skincare, makeup, perfumes, body and hair care. Cash on Delivery across Pakistan.`};
     case "sale": return {title:`Beauty Offers & Price Drops in Pakistan | ${n}`,desc:`Current offers on skincare, makeup and fragrance. Genuine price drops with Cash on Delivery across Pakistan.`};
     case "cat": {const c=catOf(r.cat);return {title:`${c.n} in Pakistan – ${topBrands(r.cat,3).join(", ")} | ${n}`,desc:`${CAT_INTRO[r.cat]} Cash on Delivery nationwide.`.slice(0,300)}}
     case "brand": return {title:`${r.brand} Price in Pakistan – ${BRAND_COUNT[r.brand]} Products | ${n}`,desc:`Buy ${r.brand} products online in Pakistan at ${n}. ${BRAND_COUNT[r.brand]} products with Cash on Delivery and 3–5 day delivery.`};
@@ -611,9 +624,9 @@ function meta(r){
 function view(r){
   switch(r.name){
     case "home": return [vHome(),afterHome];
-    case "shop": return [vShop({q:r.q}),afterShop];
+    case "shop": return [vShop({q:r.q,con:r.con}),afterShop];
     case "sale": return [vShop({sale:true}),afterShop];
-    case "cat": return [vShop({cat:r.cat}),afterShop];
+    case "cat": return [vShop({cat:r.cat,con:r.con}),afterShop];
     case "brand": return [vShop({brand:r.brand}),afterShop];
     case "product": return [vProduct(r.p),()=>afterProduct(r.p)];
     case "wishlist": return [vWish(),null];
@@ -629,7 +642,7 @@ function navActive(path){
   $$(".bnav [data-bn]").forEach(a=>{const k=a.dataset.bn;a.classList.toggle("on",(k==="home"&&path==="/")||(k==="shop"&&/^\/(shop|sale|brand)/.test(path))||(k==="wishlist"&&path==="/wishlist/"))});
 }
 function route(first){
-  const full=curPath(); const path=full.split("?")[0].replace(/index\.html$/,""); const qs=new URLSearchParams(PV?(full.split("?")[1]||""):location.search); const r=parse(path); if(r.name==="shop"&&qs.get("q")) r.q=qs.get("q"); const v=$("#view");
+  const full=curPath(); const path=full.split("?")[0].replace(/index\.html$/,""); const qs=new URLSearchParams(PV?(full.split("?")[1]||""):location.search); const r=parse(path); if(r.name==="shop"&&qs.get("q")) r.q=qs.get("q"); if((r.name==="shop"||r.name==="cat")&&qs.get("concern")&&conName(qs.get("concern"))) r.con=qs.get("concern"); const v=$("#view");
   const [html,after]=view(r);
   const m=meta(r); document.title=m.title;
   const md=$('meta[name="description"]'); if(md&&m.desc) md.setAttribute("content",m.desc);
