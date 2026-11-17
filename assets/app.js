@@ -145,71 +145,27 @@ const arrow=`<svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="n
 const crumbs=(items)=>`<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a>${items.map(([n,h])=>`<span>/</span>${h?`<a href="${h}">${n}</a>`:`<span>${n}</span>`}`).join("")}</nav>`;
 
 
-/* ---------- 3D banner ---------- */
-const BANNERS=[
- {k:"korean",eb:"K-Beauty edit",t:"Glass skin, <em>made simple.</em>",d:"Anua, COSRX, Laneige and Beauty of Joseon. Seoul's cult favourites, delivered anywhere in Pakistan.",cta:["Shop Korean skincare",U.shop("korean")],s:["cosrx-centella-water-alcohol-free-toner-150ml-korea-1", "laneige-lip-sleeping-mask-berry-3gm-1", "anua-niacinamide-10-txa-4-dark-spot-correcting-serum-korea", "anua-peach-70-niacin-serum-30ml-korea", "cosrx-advanced-snail-peptide-eye-cream-25ml-korea", "beauty-of-joseon-glow-serum-propolis-niacinamide-30ml-korea", "beauty-of-joseon-calming-serum-green-tea-panthenol-korea", "laneige-lip-sleeping-mask-berry-20g"]},
- {k:"perfume",eb:"Fragrance house",t:"Scents that <em>stay with you.</em>",d:"Long-lasting perfumes from Lattafa and Armaf for weddings, Eid and every day.",cta:["Explore perfumes",U.shop("perfume")],s:["lattafa-khamrah-eau-de-parfum-100ml", "yara-pink-lattafa-100ml", "yum-yum-100ml-eau-de-parfum-by-armaf", "lattafa-khamrah-qahwa-parfum-100ml", "cookie-crave-by-lattafa", "choco-overdose-by-lattafa", "whipped-pleasure-for-women-by-lattafa", "eclaire-by-lattafa-set-5x30-gift-set"]},
- {k:"makeup",eb:"Makeup studio",t:"Your glow, <em>your rules.</em>",d:"Tints, blush, highlighters and lashes from Benefit, MAC, Maybelline and more.",cta:["Shop makeup",U.shop("makeup")],s:["benefit-tint-benefit-lip-amp-cheek-tint-1", "mac-matchmaster-spf15-foundation-35ml-1", "maybelline-sky-high-mascara-1", "iconic-london-illuminator-liquid-highlighter-1", "iconic-london-illuminator-liquid-highlighter-shine-1", "sheglam-color-bloom-liquid-blush-night-drive-1", "pixi-on-the-glow-stick-blush-fleur", "sheglam-color-bloom-liquid-blush-hollywood"]},
- {k:"skincare",eb:"Derm favourites",t:"Skincare that <em>actually works.</em>",d:"The Ordinary, CeraVe and La Roche-Posay essentials for acne, dark spots and dry skin.",cta:["Shop skincare",U.shop("skincare")],s:["the-ordinary-caffeine-solution-5-egg-30ml-1", "cerave-sa-smoothing-cleanser-1", "la-roche-posay-anti-shine-gel-cream-mattifying-effecf-50ml-1", "la-roche-posay-retinol-b3-serum-30ml-1", "cerave-pm-facial-moisturizing-lotion-89ml-1", "cerave-acne-control-cleanser-2-salicylic-acid-acne-treatment-237ml-1", "the-ordinary-vitamin-c-suspension-30-in-silicone-30ml-1", "the-ordinary-glycolic-acid-7-toning-solution-240ml-1"]}];
+/* ---------- promo banner (light, fast, mobile friendly) ---------- */
 function vBanner(){
-  return `<section class="banner" id="banner" aria-roledescription="carousel" aria-label="Featured collections">
-  <div class="bglow" aria-hidden="true"></div>
-  ${[...Array(14)].map((_,i)=>`<i class="spark" aria-hidden="true" style="--x:${(i*53)%100}%;--y:${(i*37)%100}%;--d:${(i%7)*0.8}s;--s:${3+(i%4)}px"></i>`).join("")}
-  ${BANNERS.map((b,n)=>{const ps=b.s.map(bySlug).filter(Boolean);const from=Math.min(...P.filter(p=>p.cat===b.k&&p.stock).map(p=>p.price));return `
-  <div class="bslide${n?"":" on"}" data-k="${b.k}" role="group" aria-roledescription="slide" aria-label="${n+1} of ${BANNERS.length}"${n?' aria-hidden="true"':""}>
-    <div class="wrap bin">
-      <div class="bcopy">
-        <span class="eyebrow">${b.eb}</span>
-        <${n?"h2":"h1"} class="btitle">${b.t}</${n?"h2":"h1"}>
-        <p class="bdesc">${b.d}</p>
-        <div class="bctas"><a class="btn rose" href="${b.cta[1]}">${b.cta[0]} ${arrow}</a><span class="bfrom">From <b class="num">${rs(from)}</b></span></div>
-        <div class="bperks"><span>${icon.cash}Cash on Delivery</span><span>${icon.truck}3–5 days</span><span>${icon.ret}Easy returns</span></div>
-      </div>
-      <div class="bstage" aria-hidden="true">
-        <div class="bring" style="--n:${ps.length}">${ps.map((p,i)=>`<a class="bcard" href="${U.p(p.slug)}" tabindex="-1" style="--i:${i}" data-name="${esc(p.name)}" data-price="${rs(p.price)}">${pic(p,n===0&&i<3)}</a>`).join("")}</div>
-        <div class="bfloor"></div>
-        <div class="bnow"><span class="bnow-n"></span><b class="bnow-p num"></b></div>
-      </div>
+  const maxOff=Math.max(...P.filter(p=>p.stock).map(off));
+  const wa="+"+STORE.wa.replace(/^92/,"92 ").replace(/(\d{3})(\d{7})$/,"$1 $2");
+  return `<section class="pbanner" aria-label="${esc(STORE.name)} sale">
+    <i class="pb-orb a" aria-hidden="true"></i><i class="pb-orb b" aria-hidden="true"></i>
+    ${[...Array(10)].map((_,i)=>`<i class="pb-spark" aria-hidden="true" style="--x:${(i*61)%100}%;--y:${(i*29)%60}%;--d:${(i%5)*.9}s"></i>`).join("")}
+    <div class="wrap pb-top">
+      <div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>VELORA</b><small>BEAUTY</small></span></div>
+      <h1 class="pb-title">Ready for the <em>big sale</em></h1>
+      <p class="pb-sub">Anua, CeraVe, La Roche-Posay, Mielle, MAC, Medicube and more. Cash on Delivery all over Pakistan.</p>
+      <div class="pb-pills"><a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>${STORE.email?`<a href="mailto:${esc(STORE.email)}" class="pb-pill">${esc(STORE.email)}</a>`:`<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span>`}</div>
+      <div class="pb-ctas"><a class="btn rose" href="${U.sale}">Shop the sale ${arrow}</a><a class="btn ghost" href="${U.shop()}">Shop all</a></div>
+      ${maxOff>=10?`<div class="pb-badge" aria-label="Up to ${maxOff}% off"><span><small>Up to</small><b>${maxOff}%</b><small>OFF</small></span></div>`:""}
     </div>
-  </div>`}).join("")}
-  <div class="bnav-ui wrap"><button class="barrow" data-bdir="-1" aria-label="Previous slide">‹</button><div class="bdots">${BANNERS.map((b,i)=>`<button class="bdot${i?"":" on"}" data-bgo="${i}" aria-label="Slide ${i+1}: ${b.eb}"><i></i></button>`).join("")}</div><button class="barrow" data-bdir="1" aria-label="Next slide">›</button></div>
+    <picture class="pb-line">
+      <source media="(max-width:700px)" srcset="assets/banner/lineup-mobile.webp" width="1200" height="520">
+      <img src="assets/banner/lineup-desktop.webp" width="2600" height="660" alt="Mielle, Anua, La Roche-Posay, Celimax, Benefit, Medicube, CeraVe, Axis-Y and MAC products" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="pb-shelf" aria-hidden="true"></div>
   </section>`;
-}
-function bannerMotion(){
-  const root=$("#banner"); if(!root) return;
-  const RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
-  const slides=$$(".bslide",root), dots=$$(".bdot",root);
-  let cur=0, ry=0, tx=-10, ttx=-10, tilt=0, vel=RM?0:.16, drag=null, hover=false, last=performance.now(), timer=0;
-  const DUR=7000;
-  const show=n=>{cur=(n+slides.length)%slides.length;slides.forEach((s,i)=>{s.classList.toggle("on",i===cur);s.toggleAttribute("aria-hidden",i!==cur)});dots.forEach((d,i)=>d.classList.toggle("on",i===cur));timer=0;ry=0};
-  $$("[data-bgo]",root).forEach(b=>b.onclick=()=>show(+b.dataset.bgo));
-  $$("[data-bdir]",root).forEach(b=>b.onclick=()=>show(cur+ +b.dataset.bdir));
-  root.addEventListener("pointermove",e=>{const r=root.getBoundingClientRect();ttx=-10+((e.clientY-r.top)/r.height-.5)*-14;tilt=((e.clientX-r.left)/r.width-.5)*10});
-  root.addEventListener("pointerenter",()=>hover=true); root.addEventListener("pointerleave",()=>{hover=false;ttx=-10;tilt=0});
-  const st=()=>$(".bslide.on .bstage",root);
-  root.addEventListener("pointerdown",e=>{if(!e.target.closest(".bstage"))return;drag={x:e.clientX,ry,moved:0}});
-  addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x;drag.moved=Math.abs(dx);ry=drag.ry+dx*.35});
-  addEventListener("pointerup",()=>{setTimeout(()=>drag=null,0)});
-  root.addEventListener("click",e=>{if(drag&&drag.moved>6&&e.target.closest(".bcard"))e.preventDefault()},true);
-  let tsx=null; root.addEventListener("touchstart",e=>tsx=e.touches[0].clientX,{passive:true});
-  root.addEventListener("touchend",e=>{if(tsx===null)return;const dx=e.changedTouches[0].clientX-tsx;if(Math.abs(dx)>60&&!e.target.closest(".bstage"))show(cur+(dx<0?1:-1));tsx=null},{passive:true});
-  const frame=t=>{
-    if(!root.isConnected) return;
-    const dt=Math.min(64,t-last); last=t;
-    const s=slides[cur], ring=$(".bring",s), cards=$$(".bcard",ring), n=cards.length, step=360/n;
-    if(!drag) ry-=vel*dt/16*(hover?.45:1);
-    tx+=(ttx-tx)*.06;
-    ring.style.transform=`rotateX(${tx}deg) rotateZ(${tilt*.15}deg) rotateY(${ry}deg)`;
-    let best=-2,bi=0;
-    cards.forEach((c,i)=>{const ang=((i*step+ry)%360+360)%360;const f=Math.cos(ang*Math.PI/180);if(f>best){best=f;bi=i}
-      c.style.filter=`brightness(${.55+.45*(f+1)/2})`;c.style.opacity=(.35+.65*(f+1)/2).toFixed(2);c.style.zIndex=Math.round(f*100)+100;c.classList.toggle("front",f>.92)});
-    const fc=cards[bi], bn=$(".bnow",s);
-    if(fc&&bn.dataset.i!=bi){bn.dataset.i=bi;$(".bnow-n",bn).textContent=fc.dataset.name;$(".bnow-p",bn).textContent=fc.dataset.price;bn.classList.remove("pop");void bn.offsetWidth;bn.classList.add("pop")}
-    if(!hover&&!drag&&!RM&&!document.hidden){timer+=dt;if(timer>DUR)show(cur+1)}
-    root.style.setProperty("--prog",Math.min(1,timer/DUR));
-    requestAnimationFrame(frame);
-  };
-  requestAnimationFrame(frame);
 }
 
 /* ---------- views ---------- */
@@ -297,7 +253,7 @@ function afterHome(){
   const tr=$("#trend");
   const fill=k=>{tr.classList.add("swap");setTimeout(()=>{tr.innerHTML=trendList(k).map(p=>card(p)).join("");decorateCards(tr);tr.classList.remove("swap");reveal(tr,true);scrollMotion()},220)};
   $$("[data-tab]").forEach(b=>b.onclick=()=>{$$("[data-tab]").forEach(x=>x.classList.toggle("on",x===b));fill(b.dataset.tab)});
-  heroMotion(); counters(); bannerMotion();
+  heroMotion(); counters();
 }
 
 let shopState={};
