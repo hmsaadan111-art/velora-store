@@ -1264,3 +1264,27 @@ footer.ft{background:#111;margin-top:40px}
 @media(max-width:999px){.cat-sec{display:none}}
 .price .now,.price .was,.num{font-family:var(--body)!important}
 header.top.nomega .mega{opacity:0!important;visibility:hidden!important;pointer-events:none}
+
+/* v12 · fixes: no sideways scroll, gallery + zoom, promo card */
+html,body{overflow-x:clip;max-width:100%}
+main#view{overflow-x:clip}
+.promo-card{min-width:0;overflow:hidden;padding:18px}
+.promo-card b{font-size:clamp(22px,6vw,30px)}
+.promo-card .t-eb{font-size:10.5px;letter-spacing:.14em}
+.promo-card .codebox{display:flex;justify-content:space-between;width:100%;max-width:100%;gap:8px;letter-spacing:.06em;font-size:13px;padding:6px 6px 6px 12px}
+.promo-card .codebox span{overflow:hidden;text-overflow:ellipsis}
+.promo-card .codebox small{flex:none}
+.chips{max-width:100%}
+.gallery{display:grid;gap:12px}
+.gmain{position:relative;aspect-ratio:1;overflow:hidden;cursor:zoom-in}
+.gmain .ph{position:absolute;inset:0}
+.gmain .ph.ok img{object-fit:contain;transition:transform .25s ease-out}
+.zoom-ic{position:absolute;right:12px;bottom:12px;width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;z-index:2}
+.zoom-ic svg{width:20px;height:20px}
+.thumbs{display:flex;gap:10px;overflow-x:auto}
+.th{flex:none;width:72px;height:72px;border-radius:10px;border:1.5px solid var(--line);overflow:hidden;background:#fff;padding:0}
+.th.on{border-color:#111}
+.th img{width:100%;height:100%;object-fit:contain}
+.mbox.zoombox{width:min(96vw,980px);max-height:94vh;padding:0;background:#fff}
+.zoomv{overflow:auto;max-height:90vh;display:grid;place-items:center;background:#fff;touch-action:pinch-zoom}
+.zoomv img{width:100%;height:auto;max-width:900px;display:block}

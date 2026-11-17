@@ -402,7 +402,10 @@ function vProduct(p){
   return `<div class="wrap">
     ${crumbs([[c.n,U.shop(p.cat)],...(BRANDS.includes(p.brand)?[[esc(p.brand),U.brand(p.brand)]]:[]),[esc(p.name)]])}
     <div class="pd">
-      <div class="gallery"><div class="gmain rv clip" id="gmain">${pic(p,1)}${o>=10&&p.stock?`<span class="off" style="font-size:13px">−${o}%</span>`:""}</div></div>
+      <div class="gallery">
+        <div class="gmain" id="gmain" role="button" tabindex="0" aria-label="Zoom image">${pic(p,1)}${o>=10&&p.stock?`<span class="tags"><span class="tag">Sale −${o}%</span></span>`:""}<span class="zoom-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4M11 8v6M8 11h6"/></svg></span></div>
+        ${(p.imgs||[]).length>1?`<div class="thumbs">${p.imgs.map((s,i)=>`<button type="button" class="th${i?"":" on"}" data-gimg="${s}" aria-label="Image ${i+1}"><img src="${s}" alt="" width="120" height="120" loading="lazy"></button>`).join("")}</div>`:""}
+      </div>
       <div class="pinfo">
         <a class="brand ld" style="--d:60ms" href="${BRANDS.includes(p.brand)?U.brand(p.brand):U.shop(p.cat)}">${esc(p.brand)}</a>
         <h1 class="ld" style="--d:120ms">${esc(p.name)}</h1>
@@ -433,6 +436,14 @@ function vProduct(p){
   ${p.stock?`<div class="sticky-buy" id="stickyBuy"><div class="wrap"><span class="sb-n">${esc(p.name)}</span><b class="num">${rs(p.price)}</b><button class="btn rose" data-buynow="${p.slug}">Buy now</button></div></div>`:""}`;
 }
 function afterProduct(p){
+  const gm=$("#gmain");
+  if(gm){
+    const img=()=>$("img",gm);
+    $$(".th").forEach(t=>t.onclick=()=>{$$(".th").forEach(x=>x.classList.toggle("on",x===t));const i=img();if(i){i.src=t.dataset.gimg}});
+    const zoom=()=>{const i=img();if(!i)return;openModal(`<div class="zoomv"><img src="${i.src}" alt="${esc(p.name)}"></div>`,"zoombox")};
+    gm.onclick=zoom; gm.onkeydown=e=>{if(e.key==="Enter")zoom()};
+    if(matchMedia("(hover:hover)").matches){gm.onmousemove=e=>{const r=gm.getBoundingClientRect(),i=img();if(!i)return;i.style.transformOrigin=`${(e.clientX-r.left)/r.width*100}% ${(e.clientY-r.top)/r.height*100}%`;i.style.transform="scale(1.8)"};gm.onmouseleave=()=>{const i=img();if(i)i.style.transform=""}}
+  }
   $$("[data-q]").forEach(b=>b.onclick=()=>{pdQty=Math.max(1,Math.min(10,pdQty+ +b.dataset.q));$("#pq").textContent=pdQty;$("#pt").textContent=rs(p.price*pdQty)});
   const d=$("#dlv"); if(d) d.innerHTML=deliveryText();
   const sb=$("#stickyBuy"), buy=$(".buy");
