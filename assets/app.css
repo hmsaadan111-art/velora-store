@@ -1288,3 +1288,10 @@ main#view{overflow-x:clip}
 .mbox.zoombox{width:min(96vw,980px);max-height:94vh;padding:0;background:#fff}
 .zoomv{overflow:auto;max-height:90vh;display:grid;place-items:center;background:#fff;touch-action:pinch-zoom}
 .zoomv img{width:100%;height:auto;max-width:900px;display:block}
+
+/* v13 text-only logo */
+.logo .mk{display:none}
+.logo .wm{display:flex;align-items:center}
+.logo .wm b{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:.32em;line-height:1;margin-right:-.32em}
+.ft-brand .logo .wm b{font-size:32px}
+@media(max-width:600px){.logo .wm b{font-size:22px;letter-spacing:.28em}}

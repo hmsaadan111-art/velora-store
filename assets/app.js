@@ -166,7 +166,7 @@ function bannerHTML(b,first){
   return `<section class="pbanner pb-${b.lay}${b.dark?" pb-dark":""}" data-bn="${b.n}" style="--pb1:${c1};--pb2:${c2};--pbi:${b.ink};--pba:${b.ac}" aria-label="${esc(b.eb||STORE.name)}">
     <i class="pb-orb a" aria-hidden="true"></i><i class="pb-orb b" aria-hidden="true"></i>
     <div class="wrap pb-top">
-      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>SEFORA</b><small>.PK</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
+      ${b.n===1?`<div class="pb-brand"><span><b>SEFORA</b></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
       <${H} class="pb-title">${b.t()}</${H}>
       <p class="pb-sub">${b.d}</p>
       <div class="pb-pills">${b.wa?`<a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>`:`<span class="pb-pill">${icon.cash}Cash on Delivery</span>`}<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span></div>
@@ -772,7 +772,7 @@ function welcomeNudge(){
   setTimeout(()=>{
     if($("#modal").classList.contains("on")||$(".drawer.on")||/checkout|order-placed/.test(location.pathname)) return;
     ss.set("nudge","1"); const el=$("#nudge");
-    el.innerHTML=`<img src="assets/logo-mark.svg" alt="" width="40" height="40"><div><b>New here? 10% off your first order</b><small>Use code <button class="lnk" data-copy="WELCOME10"><small>WELCOME10</small></button> in your bag.</small></div><button class="x" aria-label="Dismiss">×</button>`;
+    el.innerHTML=`<div><b>New here? 10% off your first order</b><small>Use code <button class="lnk" data-copy="WELCOME10"><small>WELCOME10</small></button> in your bag.</small></div><button class="x" aria-label="Dismiss">×</button>`;
     el.classList.add("on"); $(".x",el).onclick=()=>el.classList.remove("on"); setTimeout(()=>el.classList.remove("on"),12000);
   },20000);
 }
