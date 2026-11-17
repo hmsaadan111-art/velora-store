@@ -691,6 +691,28 @@ function notifyModal(p){
 }
 function waOpen(msg){ track("generate_lead",{method:"whatsapp"}); adsConversion(CFG.adsWhatsappLabel,{}); window.open(`https://wa.me/${STORE.wa}?text=${encodeURIComponent(msg)}`,"_blank","noopener") }
 
+
+/* theme picker (preview builds only) */
+const THEMES=[["","Nude Luxe","Ivory, espresso, rose gold",["#FBF7F2","#2B201C","#9C5F52","#B8935E"]],
+["maison","Maison","White and black, Chanel/Sephora style",["#FFFFFF","#111111","#C8102E","#D8C7A3"]],
+["blush","Blush Couture","Soft pink and black, Glossier style",["#FCF4F2","#1F1517","#B65F6B","#EBB8BC"]],
+["champagne","Champagne","Ivory and gold, Sulwhasoo/Dior style",["#F8F3E9","#26221C","#9C7A38","#E3CB92"]],
+["emerald","Emerald Atelier","Deep green and gold, perfume house",["#F6F3EC","#0F3B30","#B08A45","#E2C78E"]],
+["bordeaux","Bordeaux","Burgundy and gold, Charlotte Tilbury style",["#FAF4F2","#4E1427","#7A1E36","#E4C894"]],
+["lilac","Seoul Lilac","Lilac and navy, Laneige/K-beauty",["#F6F5FC","#1C2147","#5C63C7","#C9CBF3"]],
+["peach","Peach Glow","Peach and coral, Glow Recipe style",["#FFF7F2","#2B1C17","#D9643F","#F8BFA6"]],
+["mocha","Mocha Mousse","Warm mocha, Pantone colour of the year",["#F7F1EB","#3B2C25","#8F6552","#D6B7A6"]],
+["sage","Sage Apothecary","Clean white and sage, Aesop style",["#F5F4EE","#263028","#4F6E57","#BFD0C0"]]];
+function themePicker(){
+  if(!CFG.themePicker) return;
+  const cur=store.get("theme","");
+  const w=document.createElement("div"); w.className="tpick";
+  w.innerHTML=`<button type="button" aria-expanded="false"><i></i>Theme</button><div class="tpanel"><b>Choose a colour theme</b>${THEMES.map(([k,n,d,c],i)=>`<button type="button" class="topt${k===cur?" on":""}" data-th="${k}"><span class="sw">${c.map(x=>`<span style="background:${x}"></span>`).join("")}</span><span><strong>${i+1}. ${n}</strong><small>${d}</small></span></button>`).join("")}</div>`;
+  document.body.appendChild(w);
+  const btn=w.firstElementChild; btn.onclick=()=>{w.classList.toggle("open");btn.setAttribute("aria-expanded",w.classList.contains("open"))};
+  $$(".topt",w).forEach(o=>o.onclick=()=>{const k=o.dataset.th; if(k)document.documentElement.dataset.theme=k; else delete document.documentElement.dataset.theme; store.set("theme",k); $$(".topt",w).forEach(x=>x.classList.toggle("on",x===o)); toast(`Theme: <b>${o.querySelector("strong").textContent}</b>`)});
+}
+
 /* ---------- boot ---------- */
 function boot(){
   document.documentElement.classList.add("js");
@@ -740,7 +762,7 @@ function boot(){
   if(PV) addEventListener("hashchange",()=>{const v=$("#view");v.classList.add("leave");setTimeout(()=>{window.scrollTo({top:0,behavior:"instant"});v.classList.remove("leave");route()},180)});
   $("#menuBtn").onclick=()=>openPanel("menu");
   $("#yr").textContent=new Date().getFullYear();
-  syncBadges(); renderCart(); scrollFx(); spInit(); route(true); welcomeNudge(); loadTags();
+  syncBadges(); renderCart(); scrollFx(); spInit(); route(true); welcomeNudge(); loadTags(); themePicker();
   document.body.classList.add("ready");
 }
 if(typeof document!=="undefined"&&!SSR){ document.readyState==="loading"?document.addEventListener("DOMContentLoaded",boot):boot() }

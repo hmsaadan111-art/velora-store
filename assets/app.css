@@ -686,3 +686,92 @@ nav.main a[aria-current]::after,nav.main a.on::after{transform:scaleX(1)}
 footer{background:radial-gradient(120% 100% at 0 0,#3A2C26 0,#1E1613 60%)}
 footer h5{color:var(--gold-2)}
 .card .brand{color:var(--rose)}
+
+/* =====================================================================
+   v5 · Theme system: every colour comes from these variables
+   ===================================================================== */
+:root{
+  --dark:#2B201C; --dark-2:#1E1613; --dark-card:#352823; --dark-line:rgba(255,255,255,.1); --on-dark:#F6EEE8;
+  --fill:var(--ink); --on-fill:var(--porcelain); --sale:var(--ink);
+  --soft-a:color-mix(in srgb,var(--rose-2) 32%,var(--porcelain));
+}
+header.top{background:color-mix(in srgb,var(--porcelain) 86%,transparent)}
+.search{background:color-mix(in srgb,var(--porcelain) 97%,transparent)}
+.bnav,.sticky-buy{background:color-mix(in srgb,var(--card) 95%,transparent)}
+.hero{background:radial-gradient(60% 60% at 80% 35%,var(--soft-a),transparent 65%),radial-gradient(40% 40% at 5% 95%,var(--blush),transparent 70%)}
+.blob.a{background:radial-gradient(circle at 35% 30%,var(--card) 0,var(--blush) 38%,var(--soft-a) 70%,var(--rose-2) 100%)}
+.blob.b{background:radial-gradient(circle at 40% 40%,color-mix(in srgb,var(--gold-2) 50%,var(--porcelain)),var(--gold-2))}
+.hero h1 em,.sec-head h2 em,.shop-head h1 em,.promo h3 em{color:var(--rose)}
+.btn.primary{background:var(--fill);color:var(--on-fill)}
+.btn.primary:hover{background:var(--rose);color:#fff;box-shadow:0 14px 30px -14px var(--rose)}
+.btn.rose{background:var(--rose);color:#fff}
+.btn.rose:hover{background:var(--fill);color:var(--on-fill)}
+.btn.ghost:hover{background:var(--fill);color:var(--on-fill);border-color:var(--fill)}
+.tab.on{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+.off{background:var(--sale);color:#fff}
+.quick{background:var(--fill);color:var(--on-fill)}
+.badge{background:var(--rose);color:#fff}
+.seal{background:var(--dark)}
+.seal text{fill:var(--on-dark)}
+.tstrip{background:var(--dark);color:var(--on-dark)}
+.tstrip .ann-track span::before{background:var(--gold)}
+.flash{background:radial-gradient(120% 140% at 100% 0,var(--dark-card) 0,var(--dark) 45%,var(--dark-2) 100%);color:var(--on-dark)}
+.flash h2{color:var(--on-dark)}
+.flash::before{background:radial-gradient(circle,color-mix(in srgb,var(--rose-2) 40%,transparent),transparent 65%)}
+.flash .card{background:var(--dark-card);border-color:var(--dark-line);color:var(--on-dark)}
+.flash .card .name,.flash .card .now{color:var(--on-dark)}
+.flash .card .brand,.flash .eyebrow{color:var(--gold-2)!important}
+.flash .sec-head h2 em{color:var(--gold-2)!important}
+.flash .more{color:var(--on-dark);border-color:var(--on-dark)}
+.promo.k{background:linear-gradient(135deg,var(--blush),var(--soft-a))}
+.promo.f{background:linear-gradient(140deg,var(--dark),var(--dark-2));color:var(--on-dark)}
+.promo.f h3{color:var(--on-dark)}
+.promo.f h3 em{color:var(--gold-2)}
+.promo.f p{color:color-mix(in srgb,var(--on-dark) 75%,transparent)}
+.promo.f .btn.ghost{border-color:var(--on-dark);color:var(--on-dark)}
+.promo.f .btn.ghost:hover{background:var(--on-dark);color:var(--dark)}
+.promo.f .eyebrow{color:var(--gold-2)!important}
+.news{background:linear-gradient(120deg,var(--blush),var(--soft-a));border:1px solid var(--line)}
+.cat .disc{background:conic-gradient(from 0deg,var(--gold-2),var(--rose-2),var(--rose),var(--gold),var(--gold-2))}
+.card .brand{color:var(--rose)}
+.stats-in b{color:var(--ink)}
+.stats-in b::first-letter{color:var(--rose)}
+.bt-row.o{-webkit-text-stroke:1px color-mix(in srgb,var(--rose) 60%,transparent)}
+.bt-row.f{color:var(--ink)}
+.bt-row span{color:var(--gold)}
+#progress{background:linear-gradient(90deg,var(--gold),var(--rose))}
+footer{background:radial-gradient(120% 100% at 0 0,var(--dark-card) 0,var(--dark-2) 60%);color:color-mix(in srgb,var(--on-dark) 80%,transparent)}
+footer h5,footer .logo .wm small{color:var(--gold-2)}
+footer .logo{color:var(--on-dark)}
+nav.main a.sale{color:var(--rose)}
+.save{background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
+.codebox{border-color:var(--rose);color:var(--ink)}
+.codebox small{background:var(--fill);color:var(--on-fill)}
+
+/* ---- themes ---- */
+html[data-theme="maison"]{--porcelain:#FFFFFF;--blush:#F4F4F2;--card:#FFFFFF;--ink:#111111;--muted:#6B6B6B;--line:#E7E7E4;--rose:#111111;--rose-2:#D9D6CF;--gold:#8C7A5B;--gold-2:#D8C7A3;--dark:#111111;--dark-2:#000000;--dark-card:#1C1C1C;--on-dark:#F5F5F2;--sale:#C8102E;--soft-a:#F3F2EE}
+html[data-theme="blush"]{--porcelain:#FCF4F2;--blush:#F8E6E3;--card:#FFFFFF;--ink:#1F1517;--muted:#7A6A6C;--line:#F0DCD8;--rose:#B65F6B;--rose-2:#EBB8BC;--gold:#B8935E;--gold-2:#E8CDA3;--dark:#1F1517;--dark-2:#140D0F;--dark-card:#2E2124;--on-dark:#FBEFEF;--sale:#B65F6B}
+html[data-theme="champagne"]{--porcelain:#F8F3E9;--blush:#F1E8D7;--card:#FFFDF8;--ink:#26221C;--muted:#776D5F;--line:#E8DDC9;--rose:#9C7A38;--rose-2:#E4CF9E;--gold:#A6802A;--gold-2:#E3CB92;--dark:#26221C;--dark-2:#18150F;--dark-card:#332D25;--on-dark:#F7F1E3;--sale:#26221C}
+html[data-theme="emerald"]{--porcelain:#F6F3EC;--blush:#ECE7DA;--card:#FFFFFF;--ink:#13221D;--muted:#5F6B66;--line:#E3DDD0;--rose:#0F5444;--rose-2:#B9CFC3;--gold:#B08A45;--gold-2:#E2C78E;--dark:#0F3B30;--dark-2:#082520;--dark-card:#164A3D;--on-dark:#F3EFE4;--sale:#0F3B30}
+html[data-theme="bordeaux"]{--porcelain:#FAF4F2;--blush:#F3E5E4;--card:#FFFFFF;--ink:#2A1018;--muted:#7A6266;--line:#EEDCDB;--rose:#7A1E36;--rose-2:#E1B3BC;--gold:#B08A4E;--gold-2:#E4C894;--dark:#4E1427;--dark-2:#2A0B16;--dark-card:#5E1B31;--on-dark:#FAEEF0;--sale:#7A1E36}
+html[data-theme="lilac"]{--porcelain:#F6F5FC;--blush:#ECEAF9;--card:#FFFFFF;--ink:#1C2147;--muted:#62668A;--line:#E2E0F2;--rose:#5C63C7;--rose-2:#C9CBF3;--gold:#9B8BC9;--gold-2:#D9D2F2;--dark:#1C2147;--dark-2:#11142E;--dark-card:#272D5C;--on-dark:#EEEFFC;--sale:#5C63C7}
+html[data-theme="peach"]{--porcelain:#FFF7F2;--blush:#FFE9DE;--card:#FFFFFF;--ink:#2B1C17;--muted:#7D6A62;--line:#F6DDD1;--rose:#D9643F;--rose-2:#F8BFA6;--gold:#C9935A;--gold-2:#F2CFA2;--dark:#2B1C17;--dark-2:#1C120E;--dark-card:#3A2721;--on-dark:#FFF1EA;--sale:#D9643F}
+html[data-theme="mocha"]{--porcelain:#F7F1EB;--blush:#EFE4DA;--card:#FFFCF9;--ink:#2F241F;--muted:#7A6A60;--line:#E7DACF;--rose:#8F6552;--rose-2:#D6B7A6;--gold:#A98A5E;--gold-2:#DFC8A2;--dark:#3B2C25;--dark-2:#271D18;--dark-card:#4A3830;--on-dark:#F7EEE6;--sale:#3B2C25}
+html[data-theme="sage"]{--porcelain:#F5F4EE;--blush:#E9EBE1;--card:#FFFFFF;--ink:#1F2420;--muted:#666D66;--line:#E0E2D7;--rose:#4F6E57;--rose-2:#BFD0C0;--gold:#A08C62;--gold-2:#D9CBA6;--dark:#263028;--dark-2:#171D18;--dark-card:#313D33;--on-dark:#F1F3EB;--sale:#263028}
+
+/* theme picker (preview only) */
+.tpick{position:fixed;left:14px;bottom:78px;z-index:80;font-family:var(--body)}
+@media(min-width:900px){.tpick{bottom:20px}}
+.tpick>button{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px 0 10px;border-radius:99px;background:var(--fill);color:var(--on-fill);font-weight:700;font-size:13px;box-shadow:var(--shadow-lg)}
+.tpick>button i{width:24px;height:24px;border-radius:50%;background:conic-gradient(#111,#B65F6B,#A6802A,#0F3B30,#7A1E36,#5C63C7,#D9643F,#8F6552,#4F6E57,#111)}
+.tpanel{position:absolute;left:0;bottom:54px;width:min(330px,calc(100vw - 28px));background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-lg);padding:12px;display:none;max-height:70vh;overflow:auto}
+.tpick.open .tpanel{display:grid;gap:6px;animation:up .35s var(--ease-out)}
+.tpanel b{font-size:13px;padding:4px 6px}
+.topt{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1.5px solid transparent;text-align:left}
+.topt:hover{background:var(--blush)}
+.topt.on{border-color:var(--rose)}
+.topt .sw{display:flex}
+.topt .sw span{width:20px;height:20px;border-radius:50%;margin-left:-5px;border:2px solid var(--card)}
+.topt .sw span:first-child{margin-left:0}
+.topt strong{font-size:13.5px;display:block}
+.topt small{font-size:11.5px;color:var(--muted)}
