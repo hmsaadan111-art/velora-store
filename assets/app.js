@@ -10,7 +10,7 @@ const SSR = !!G.__PRERENDER;
 const PV = !!(G.VELORA_CONFIG&&G.VELORA_CONFIG.preview); // hash routing for sandboxed previews
 const curPath = () => PV ? (decodeURIComponent(location.hash.slice(1))||"/") : location.pathname;
 const STORE = {
-  name: CFG.name || "Sefora Beauty",
+  name: CFG.name || "Sefora.pk",
   wa: CFG.whatsapp || "923000000000",
   phone: CFG.phone || "",
   email: CFG.email || "",
@@ -166,7 +166,7 @@ function bannerHTML(b,first){
   return `<section class="pbanner pb-${b.lay}${b.dark?" pb-dark":""}" data-bn="${b.n}" style="--pb1:${c1};--pb2:${c2};--pbi:${b.ink};--pba:${b.ac}" aria-label="${esc(b.eb||STORE.name)}">
     <i class="pb-orb a" aria-hidden="true"></i><i class="pb-orb b" aria-hidden="true"></i>
     <div class="wrap pb-top">
-      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>SEFORA</b><small>BEAUTY</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
+      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>SEFORA</b><small>.PK</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
       <${H} class="pb-title">${b.t()}</${H}>
       <p class="pb-sub">${b.d}</p>
       <div class="pb-pills">${b.wa?`<a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>`:`<span class="pb-pill">${icon.cash}Cash on Delivery</span>`}<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span></div>
@@ -254,7 +254,7 @@ function vHome(){
   <div class="brands" aria-label="Brands"><div class="brands-track">${[...BRANDS.slice(0,26),...BRANDS.slice(0,26)].map((b,i)=>`<a href="${U.brand(b)}"${i>=26?' tabindex="-1" aria-hidden="true"':""}>${esc(b)}</a>`).join("")}</div></div>
 
 
-  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty<span>✦</span>Sefora<span>✦</span>Beauty</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Signature scents<span>✦</span>Glass skin<span>✦</span>Signature scents<span>✦</span>Glass skin<span>✦</span>Cash on Delivery</div></div></div>
+  <div class="bigtype" aria-hidden="true"><div class="bt-row o" data-sp="mq" data-dir="-1">Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty<span>✦</span>Sefora.pk<span>✦</span>Beauty</div><div class="r2"><div class="bt-row f" data-sp="mq" data-dir="1">Signature scents<span>✦</span>Glass skin<span>✦</span>Signature scents<span>✦</span>Glass skin<span>✦</span>Cash on Delivery</div></div></div>
   <section class="sec"><div class="wrap">
     <div class="sec-head"><h2 data-split>Signature <em>fragrances</em></h2><a class="more" href="${U.shop("perfume")}">All perfumes ${arrow}</a></div>
     <div class="grid">${P.filter(p=>p.cat==="perfume"&&p.stock).slice(0,8).map(p=>card(p)).join("")}</div>
