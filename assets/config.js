@@ -17,5 +17,14 @@ window.VELORA_CONFIG={
  "adsPurchaseLabel": "",
  "adsAddToCartLabel": "",
  "adsWhatsappLabel": "",
- "orderEndpoint": ""
+ "orderEndpoint": "",
+ "banners": [
+  2,
+  4,
+  5,
+  6,
+  8,
+  9,
+  10
+ ]
 };

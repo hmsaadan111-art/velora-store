@@ -988,3 +988,4 @@ footer.ft .fbrands a:hover{border-color:var(--gold-2);color:var(--on-dark)}
 .pb-badge.sm b{font-size:clamp(17px,1.7vw,22px);white-space:nowrap}
 .pb-badge.sm span{rotate:-6deg}
 @media(max-width:700px){.pb-badge.sm b{font-size:15px}.pb-pills{gap:6px}.pb-pill{font-size:12px;padding:8px 12px}}
+.pbs-ui{position:relative;left:auto;bottom:auto;translate:none;width:max-content;margin:14px auto 0;background:var(--blush);border:1px solid var(--line)}
