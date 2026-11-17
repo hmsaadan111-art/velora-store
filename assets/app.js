@@ -145,27 +145,66 @@ const arrow=`<svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="n
 const crumbs=(items)=>`<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a>${items.map(([n,h])=>`<span>/</span>${h?`<a href="${h}">${n}</a>`:`<span>${n}</span>`}`).join("")}</nav>`;
 
 
-/* ---------- promo banner (light, fast, mobile friendly) ---------- */
-function vBanner(){
-  const maxOff=Math.max(...P.filter(p=>p.stock).map(off));
+/* ---------- promo banners (light, fast, mobile friendly) ---------- */
+const minPrice=k=>rs(Math.min(...P.filter(p=>p.stock&&(!k||p.cat===k)).map(p=>p.price)));
+const BANNER_SET=[
+ {n:1,lay:"center",bg:"#F6D6D3,#FBEDEA",ink:"#3A1A1F",ac:"#B23A48",eb:"",t:()=>`Ready for the <em>big sale</em>`,d:"Anua, CeraVe, La Roche-Posay, Mielle, MAC, Medicube and more. Cash on Delivery all over Pakistan.",cta:["Shop the sale",U.sale],badge:()=>{const m=Math.max(...P.filter(p=>p.stock).map(off));return m>=10?["Up to",m+"%","OFF"]:null},wa:1},
+ {n:2,lay:"split",bg:"#DDEFE6,#F3FAF6",ink:"#12352A",ac:"#2F8F6B",eb:"K-Beauty edit",t:()=>`Glass skin <em>starts here</em>`,d:"Anua, COSRX, Medicube, Purito and Laneige. Seoul's cult favourites for Pakistani weather.",cta:["Shop Korean skincare",U.shop("korean")],badge:()=>["From",minPrice("korean"),""]},
+ {n:3,lay:"center",dark:1,bg:"#2B1F18,#120D0A",ink:"#F6EBDD",ac:"#D4AF6A",eb:"Fragrance house",t:()=>`Scents that <em>stay with you</em>`,d:"Long-lasting perfumes for weddings, Eid and every day, from fresh to rich and woody.",cta:["Explore perfumes",U.shop("perfume")],badge:()=>["From",minPrice("perfume"),""]},
+ {n:4,lay:"split",bg:"#F3D9E4,#FBEFF4",ink:"#3B1029",ac:"#B5306B",eb:"Makeup studio",t:()=>`Glam that <em>lasts all day</em>`,d:"Foundation, blush, gloss and lipstick from NARS, Fenty Beauty, Estée Lauder, MAC and YSL.",cta:["Shop makeup",U.shop("makeup")],badge:()=>["From",minPrice("makeup"),""]},
+ {n:5,lay:"center",bg:"#DCEBF7,#F4F9FD",ink:"#0F2A44",ac:"#1F6FB2",eb:"Derm favourites",t:()=>`Skincare that <em>actually works</em>`,d:"CeraVe, La Roche-Posay, Cetaphil and Paula's Choice for acne, dark spots and dry skin.",cta:["Shop skincare",U.shop("skincare")],badge:()=>["Derm","approved","picks"]},
+ {n:6,lay:"split",bg:"#F5E6CC,#FBF4E8",ink:"#3A2A12",ac:"#A8742A",eb:"Hair care",t:()=>`Stronger, <em>shinier hair</em>`,d:"Mielle rosemary, keratin masks, serums and styling tools for salon results at home.",cta:["Shop hair care",U.shop("hair")],badge:()=>["From",minPrice("hair"),""]},
+ {n:7,lay:"center",bg:"#FFE9B8,#FFF6DF",ink:"#4A2E00",ac:"#C97700",eb:"Sun care",t:()=>`Your SPF, <em>sorted</em>`,d:"La Roche-Posay, CeraVe, Bioderma and Medicube sunscreens. Light, no white cast, made for daily wear.",cta:["Shop sunscreens",U.shop("skincare")],badge:()=>["SPF","50+","daily"]},
+ {n:8,lay:"split",bg:"#EADCF7,#F7F0FC",ink:"#2E1A47",ac:"#8B4FC4",eb:"Body care",t:()=>`Smell good, <em>feel softer</em>`,d:"Sol de Janeiro creams and mists, plus Vaseline body oils for soft, glowing skin.",cta:["Shop body care",U.shop("body")],badge:()=>["From",minPrice("body"),""]},
+ {n:9,lay:"center",bg:"#F6D1CF,#FDEDEC",ink:"#4A0E12",ac:"#C8202F",eb:"Lip edit",t:()=>`Lips worth <em>talking about</em>`,d:"Glosses, tints, balms and lipsticks from YSL, Fenty Beauty, NYX, Benefit and Laneige.",cta:["Shop lips",U.shop("makeup")],badge:()=>["From",minPrice("makeup"),""]},
+ {n:10,lay:"split",bg:"#F4E7D3,#FBF5EC",ink:"#33261A",ac:"#B08A4E",eb:"Gift sets",t:()=>`Gifts she'll <em>actually love</em>`,d:"Makeup kits, mini sets and brush sets. Perfect for weddings, Eid and birthdays.",cta:["Shop gift sets",U.shop()],badge:()=>["Gift","ready",""]}
+];
+function bannerHTML(b,first){
+  const [c1,c2]=b.bg.split(","), bd=b.badge&&b.badge();
   const wa="+"+STORE.wa.replace(/^92/,"92 ").replace(/(\d{3})(\d{7})$/,"$1 $2");
-  return `<section class="pbanner" aria-label="${esc(STORE.name)} sale">
+  const H=first?"h1":"h2";
+  return `<section class="pbanner pb-${b.lay}${b.dark?" pb-dark":""}" data-bn="${b.n}" style="--pb1:${c1};--pb2:${c2};--pbi:${b.ink};--pba:${b.ac}" aria-label="${esc(b.eb||STORE.name)}">
     <i class="pb-orb a" aria-hidden="true"></i><i class="pb-orb b" aria-hidden="true"></i>
-    ${[...Array(10)].map((_,i)=>`<i class="pb-spark" aria-hidden="true" style="--x:${(i*61)%100}%;--y:${(i*29)%60}%;--d:${(i%5)*.9}s"></i>`).join("")}
     <div class="wrap pb-top">
-      <div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>VELORA</b><small>BEAUTY</small></span></div>
-      <h1 class="pb-title">Ready for the <em>big sale</em></h1>
-      <p class="pb-sub">Anua, CeraVe, La Roche-Posay, Mielle, MAC, Medicube and more. Cash on Delivery all over Pakistan.</p>
-      <div class="pb-pills"><a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>${STORE.email?`<a href="mailto:${esc(STORE.email)}" class="pb-pill">${esc(STORE.email)}</a>`:`<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span>`}</div>
-      <div class="pb-ctas"><a class="btn rose" href="${U.sale}">Shop the sale ${arrow}</a><a class="btn ghost" href="${U.shop()}">Shop all</a></div>
-      ${maxOff>=10?`<div class="pb-badge" aria-label="Up to ${maxOff}% off"><span><small>Up to</small><b>${maxOff}%</b><small>OFF</small></span></div>`:""}
+      ${b.n===1?`<div class="pb-brand"><img src="assets/logo-mark.svg" alt="" width="56" height="56"><span><b>VELORA</b><small>BEAUTY</small></span></div>`:`<span class="pb-eb">${b.eb}</span>`}
+      <${H} class="pb-title">${b.t()}</${H}>
+      <p class="pb-sub">${b.d}</p>
+      <div class="pb-pills">${b.wa?`<a href="#" data-wa class="pb-pill">${icon.chat}<span class="num">${wa}</span></a>`:`<span class="pb-pill">${icon.cash}Cash on Delivery</span>`}<span class="pb-pill">${icon.truck}Free delivery over ${rs(STORE.freeShip)}</span></div>
+      <div class="pb-ctas"><a class="btn pb-btn" href="${b.cta[1]}">${b.cta[0]} ${arrow}</a></div>
+      ${bd?`<div class="pb-badge${String(bd[1]).length>4?" sm":""}"><span>${bd[0]?`<small>${bd[0]}</small>`:""}<b>${bd[1]}</b>${bd[2]?`<small>${bd[2]}</small>`:""}</span></div>`:""}
     </div>
     <picture class="pb-line">
-      <source media="(max-width:700px)" srcset="assets/banner/lineup-mobile.webp" width="1200" height="520">
-      <img src="assets/banner/lineup-desktop.webp" width="2600" height="660" alt="Mielle, Anua, La Roche-Posay, Celimax, Benefit, Medicube, CeraVe, Axis-Y and MAC products" fetchpriority="high" decoding="async">
+      <source media="(max-width:700px)" srcset="assets/banner/b${b.n}-m.webp" width="1200" height="520">
+      <img src="assets/banner/b${b.n}-d.webp" ${b.lay==="split"?'width="1500" height="760"':'width="2600" height="660"'} alt="${esc(b.eb||"Featured")} products" ${first?'fetchpriority="high"':'loading="lazy"'} decoding="async">
     </picture>
     <div class="pb-shelf" aria-hidden="true"></div>
   </section>`;
+}
+function homeBanners(){ const ids=(CFG.banners&&CFG.banners.length?CFG.banners:[1]); return BANNER_SET.filter(b=>ids.includes(b.n)).sort((x,y)=>ids.indexOf(x.n)-ids.indexOf(y.n)) }
+function vBanner(){
+  const list=homeBanners();
+  if(list.length===1) return bannerHTML(list[0],true);
+  return `<div class="pbs" aria-roledescription="carousel" aria-label="Featured offers">
+    <div class="pbs-track">${list.map((b,i)=>`<div class="pbs-slide${i?"":" on"}" ${i?'aria-hidden="true"':""}>${bannerHTML(b,i===0)}</div>`).join("")}</div>
+    <div class="pbs-ui"><button class="pbs-arrow" data-pbs="-1" aria-label="Previous banner">‹</button><div class="pbs-dots">${list.map((b,i)=>`<button class="pbs-dot${i?"":" on"}" data-pbsgo="${i}" aria-label="Banner ${i+1}"></button>`).join("")}</div><button class="pbs-arrow" data-pbs="1" aria-label="Next banner">›</button></div>
+  </div>`;
+}
+function bannerSlider(){
+  const root=$(".pbs"); if(!root) return;
+  const s=$$(".pbs-slide",root), d=$$(".pbs-dot",root); let cur=0,t;
+  const show=n=>{cur=(n+s.length)%s.length;s.forEach((x,i)=>{x.classList.toggle("on",i===cur);x.toggleAttribute("aria-hidden",i!==cur)});d.forEach((x,i)=>x.classList.toggle("on",i===cur));$(".pbs-track",root).style.height=s[cur].offsetHeight+"px";restart()};
+  const restart=()=>{clearInterval(t);if(!matchMedia("(prefers-reduced-motion:reduce)").matches)t=setInterval(()=>{if(!document.hidden&&root.isConnected)show(cur+1);else if(!root.isConnected)clearInterval(t)},6000)};
+  $$("[data-pbs]",root).forEach(b=>b.onclick=()=>show(cur+ +b.dataset.pbs));
+  $$("[data-pbsgo]",root).forEach(b=>b.onclick=()=>show(+b.dataset.pbsgo));
+  let x0=null; root.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true});
+  root.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));x0=null},{passive:true});
+  root.addEventListener("mouseenter",()=>clearInterval(t)); root.addEventListener("mouseleave",restart);
+  const fit=()=>$(".pbs-track",root).style.height=s[cur].offsetHeight+"px";
+  addEventListener("resize",fit); $$("img",root).forEach(im=>im.addEventListener("load",fit)); fit(); restart();
+}
+function vBannerGallery(){
+  return `<div class="wrap">${crumbs([["Banner options"]])}<div class="shop-head"><h1>Banner options</h1><p>10 designs. Tell us the numbers of the 5 you like.</p></div></div>
+  ${BANNER_SET.map(b=>`<div class="bg-item"><div class="wrap bg-lab"><b>Banner ${b.n}</b><span>${b.eb||"Big sale"}</span></div>${bannerHTML(b,false)}</div>`).join("")}`;
 }
 
 /* ---------- views ---------- */
@@ -253,7 +292,7 @@ function afterHome(){
   const tr=$("#trend");
   const fill=k=>{tr.classList.add("swap");setTimeout(()=>{tr.innerHTML=trendList(k).map(p=>card(p)).join("");decorateCards(tr);tr.classList.remove("swap");reveal(tr,true);scrollMotion()},220)};
   $$("[data-tab]").forEach(b=>b.onclick=()=>{$$("[data-tab]").forEach(x=>x.classList.toggle("on",x===b));fill(b.dataset.tab)});
-  heroMotion(); counters();
+  heroMotion(); counters(); bannerSlider();
 }
 
 let shopState={};
@@ -500,7 +539,7 @@ function parse(path){
   if(a==="sale"&&!b) return {name:"sale"};
   if(a==="brand"&&brandBySlug(b)) return {name:"brand",brand:brandBySlug(b)};
   if(a==="product"&&bySlug(b)) return {name:"product",p:bySlug(b)};
-  if(["wishlist","checkout","order-placed"].includes(a)&&!b) return {name:a};
+  if(["wishlist","checkout","order-placed","banners"].includes(a)&&!b) return {name:a};
   if(PAGES[a]&&!b) return {name:"info",k:a};
   return {name:"404"};
 }
@@ -517,6 +556,7 @@ function meta(r){
     case "wishlist": return {title:`Wishlist | ${n}`,desc:"",noindex:true};
     case "checkout": return {title:`Checkout | ${n}`,desc:"",noindex:true};
     case "order-placed": return {title:`Order received | ${n}`,desc:"",noindex:true};
+    case "banners": return {title:`Banner options | ${n}`,desc:"",noindex:true};
     default: return {title:`Page not found | ${n}`,desc:"",noindex:true};
   }
 }
@@ -531,6 +571,7 @@ function view(r){
     case "wishlist": return [vWish(),null];
     case "checkout": return [vCheckout(),afterCheckout];
     case "order-placed": return [vDone(),afterDone];
+    case "banners": return [vBannerGallery(),null];
     case "info": return [vInfo(r.k),r.k==="track-order"?()=>{$("#trk").onsubmit=e=>{e.preventDefault();const n=$("#tno").value.trim();if(!n)return;waOpen(`Hi! Please share the status of my order #${n}.`)}}:null];
     default: return [v404(),null];
   }
